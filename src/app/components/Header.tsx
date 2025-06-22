@@ -23,13 +23,13 @@ export default function Header() {
       </nav>
       <div className="header-spacer">
         <div className="social-icons">
-          <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
+          <a href="https://www.instagram.com/yarglewithwings/" target="_blank" rel="noopener noreferrer">
             <FaInstagram size={24} />
           </a>
-          <a href="https://www.github.com" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/RioBlumenthal" target="_blank" rel="noopener noreferrer">
             <FaGithub size={24} />
           </a>
-          <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">
+          <a href="https://www.linkedin.com/in/rio-blumenthal/" target="_blank" rel="noopener noreferrer">
             <FaLinkedin size={24} />
           </a>
         </div>
