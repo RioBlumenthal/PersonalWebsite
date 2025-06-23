@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -27,7 +28,7 @@ export default function Home() {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">About Me</h3>
                   <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                  Hi! I'm an aspiring software developer going for my BS/MS in Computer Science at WPI, and this is my personal showcase site!
+                  Hi! I&apos;m an aspiring software developer going for my BS/MS in Computer Science at WPI, and this is my personal showcase site!
 Check out my resume and some of my projects, and feel free to reach out to me at rio@blumenthal.com for any questions!
                   </p>
                 </div>
@@ -88,12 +89,12 @@ Check out my resume and some of my projects, and feel free to reach out to me at
                   Check out my resume and some of my projects!
                 </p>
                 <div className="flex gap-4 flex-wrap">
-                  <a
+                  <Link
                     href="/projects"
                     className="bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-6 py-3 rounded-lg font-medium transition-colors duration-200 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]"
                   >
                     View My Projects
-                  </a>
+                  </Link>
                   <a
                     href="/Resume.pdf"
                     download
@@ -174,12 +175,12 @@ Check out my resume and some of my projects, and feel free to reach out to me at
                   </div>
                 </div>
                 <div className="mt-6 text-center">
-                  <a
+                  <Link
                     href="/projects"
                     className="text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200"
                   >
-                    View All Projects →
-                  </a>
+                    View All Projects &rarr;
+                  </Link>
                 </div>
               </section>
             </div>
