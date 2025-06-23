@@ -135,3 +135,240 @@ body {
   overflow-y: auto;
   padding: 1rem; /* Add some padding to the content area */
 }
+
+/* Resume Styles */
+.resume-container {
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 0 0.5rem;
+}
+
+.resume-section {
+  margin-bottom: 2rem;
+}
+
+.section-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 0.5rem;
+}
+
+.experience-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  height: 100%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease-in-out;
+}
+
+.experience-card:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.card-organization {
+  font-size: 1.1rem;
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+
+.card-meta {
+  text-align: right;
+}
+
+.card-location,
+.card-date {
+  display: block;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.card-points {
+  list-style-type: disc;
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.card-points li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.skills-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease-in-out;
+}
+
+.skills-card:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+}
+
+.skills-category {
+  font-size: 1.2rem;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.skill-tag {
+  background-color: var(--primary);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+.skill-tag:hover {
+  transform: scale(1.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  .experience-card,
+  .skills-card {
+    background-color: #1a1a1a;
+  }
+
+  .card-location,
+  .card-date {
+    color: #999;
+  }
+
+  .skill-tag {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+}
+
+@media (max-width: 900px) {
+  .section-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .resume-container {
+    padding: 0 0.25rem;
+  }
+  
+  .experience-card {
+    padding: 1rem;
+  }
+}
+
+.coursework-container {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(137, 207, 240, 0.3);
+}
+
+.coursework-title {
+  font-size: 1.2rem;
+  color: var(--foreground);
+  margin-bottom: 1rem;
+}
+
+.coursework-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  background-color: rgba(137, 207, 240, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+
+.course-item {
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease-in-out;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.course-item:hover {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  transform: translateY(-1px);
+}
+
+@media (prefers-color-scheme: dark) {
+  .course-item {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .coursework-container {
+    border-top-color: rgba(137, 207, 240, 0.1);
+  }
+}
+
+@media (max-width: 640px) {
+  .coursework-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .coursework-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.section-content.projects-grid,
+.section-content.experience-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .section-content.projects-grid,
+  .section-content.experience-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.project-card {
+  @apply bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-transform duration-300 hover:-translate-y-2;
+}
+
+.project-link {
+  @apply block text-gray-900 dark:text-white no-underline;
+}

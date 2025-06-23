@@ -146,26 +146,30 @@ Check out my resume and some of my projects, and feel free to reach out to me at
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                      Project One
+                      Researchella
                     </h3>
                     <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                      A brief description of your first featured project and the technologies used.
+                      Full-stack web app for undergraduates to apply for research positions. Auth0 authentication, AWS hosting, and a modern React/Flask/Oracle stack.
                     </p>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded">React</span>
-                      <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded">Node.js</span>
+                      <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded">Flask</span>
+                      <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 text-xs rounded">Oracle</span>
+                      <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-xs rounded">AWS</span>
                     </div>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                      Project Two
+                      Logisim Microprocessor
                     </h3>
                     <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                      A brief description of your second featured project and the technologies used.
+                      Designed, simulated, and programmed a pipelined microprocessor from transistor level in Logisim, with a custom Python script to convert readable Assembly to circuit-level code.
                     </p>
-                    <div className="flex gap-2">
-                      <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-xs rounded">Next.js</span>
-                      <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs rounded">TypeScript</span>
+                    <div className="flex gap-2 flex-wrap">
+                      <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded">Logisim</span>
+                      <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs rounded">Python</span>
+                      <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-xs rounded">Assembly</span>
+                      <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded">Machine Code</span>
                     </div>
                   </div>
                 </div>

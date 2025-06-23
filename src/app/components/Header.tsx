@@ -9,7 +9,7 @@ export default function Header() {
 
   return (
     <header className="header">
-      <div className="header-title">Rio's Website</div>
+      <div className="header-title">Rio Blumenthal</div>
       <nav className="nav">
         <Link href="/" className={`nav-link ${pathname === "/" ? "active" : ""}`}>
           Home
