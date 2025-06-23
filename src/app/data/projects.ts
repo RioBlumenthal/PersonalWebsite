@@ -100,5 +100,32 @@ export const projects: Project[] = [
     github: "https://github.com/RioBlumenthal/hearts",
     date: "2023",
     longDescription: "Created a complete implementation of Hearts with both multiplayer and AI modes. Developed multiple tiers of AI opponents and a testing system to evaluate their performance."
+  },
+  {
+    id: "researchella",
+    title: "Researchella",
+    description: "Full-stack web app for undergraduates to apply for research positions. Auth0 authentication, AWS hosting, and a modern React/Flask/Oracle stack.",
+    technologies: ["Python", "JavaScript", "Flask", "Oracle", "Bootstrap", "React", "Docker", "AWS"],
+    image: "/projects/researchella.png",
+    date: "2025",
+    longDescription: "Collaborated with a group of undergraduates to create a full-stack web application. Implemented Auth0 authentication, and hosted on AWS. Allowed undergraduate students to easily apply for research positions posted by faculty."
+  },
+  {
+    id: "postsmiles",
+    title: "PostSmiles",
+    description: "Simple social media web app to post things that made you smile. Flask backend, Bootstrap styling, and JS/HTML/CSS frontend.",
+    technologies: ["Python", "Flask", "Oracle", "Bootstrap", "JavaScript", "HTML", "CSS"],
+    image: "/projects/postsmiles.png",
+    date: "2025",
+    longDescription: "Developed a simple social media web application to allow users to post things that made them smile. Uses JS, HTML, and CSS for the frontend with a Flask Python backend and Bootstrap for styling."
+  },
+  {
+    id: "snake-ai",
+    title: "Snake AI",
+    description: "Trained and evaluated a Snake machine learning model using CNN and reinforcement learning.",
+    technologies: ["Python", "Machine Learning", "Deep Learning", "CNN", "Reinforcement Learning"],
+    image: "/projects/snakeai.png",
+    date: "2025",
+    longDescription: "Collaborated with other grad students to train and evaluate a Snake machine learning model. Aggregated data from 20+ skilled players into a database to train a convolutional neural network, and compared its performance to a reinforcement learning model we created. Final model consistently outperformed human players."
   }
 ]; 
