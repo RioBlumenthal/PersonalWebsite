@@ -130,9 +130,10 @@ Check out my resume and some of my projects, and feel free to reach out to me at
                           </svg>
                         </a>
                       </div>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">
-                        Developed and maintained Stealth Power dashboard software, and created updated dashboard using Next.js and Auth0 authentication.
-                      </p>
+                      <ul className="text-gray-600 dark:text-gray-300 text-sm mb-2 list-disc list-inside space-y-1">
+                        <li>Developed and maintained Stealth Power dashboard software, and created updated dashboard using Next.js and Auth0 authentication.</li>
+                        <li>Created dashboards which brought in 100,000+ customers and deals with two multi-billion dollar companies.</li>
+                      </ul>
                       <span className="text-xs text-gray-500 dark:text-gray-400">Summer 2025</span>
                     </div>
                   </div>

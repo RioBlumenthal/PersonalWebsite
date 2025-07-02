@@ -125,6 +125,7 @@ export const projects: Project[] = [
     description: "Trained and evaluated a Snake machine learning model using CNN and reinforcement learning.",
     technologies: ["Python", "Machine Learning", "Deep Learning", "CNN", "Reinforcement Learning"],
     image: "/projects/snakeai.png",
+    video: "https://www.youtube.com/embed/2PeBIZJyi7g",
     date: "2025",
     longDescription: "Collaborated with other grad students to train and evaluate a Snake machine learning model. Aggregated data from 20+ skilled players into a database to train a convolutional neural network, and compared its performance to a reinforcement learning model we created. Final model consistently outperformed human players."
   }
