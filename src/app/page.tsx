@@ -95,6 +95,12 @@ Check out my resume and some of my projects, and feel free to reach out to me at
                   >
                     View My Projects
                   </Link>
+                  <Link
+                    href="/tools"
+                    className="bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-6 py-3 rounded-lg font-medium transition-colors duration-200 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]"
+                  >
+                    Interactive Tools
+                  </Link>
                   <a
                     href="/Resume.pdf"
                     download

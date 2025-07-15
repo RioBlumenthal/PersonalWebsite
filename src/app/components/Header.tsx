@@ -20,6 +20,9 @@ export default function Header() {
         <Link href="/projects" className={`nav-link ${pathname === "/projects" ? "active" : ""}`}>
           Projects
         </Link>
+        <Link href="/tools" className={`nav-link ${pathname === "/tools" ? "active" : ""}`}>
+          Tools
+        </Link>
       </nav>
       <div className="header-spacer">
         <div className="social-icons">

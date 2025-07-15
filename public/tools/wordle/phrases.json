@@ -1,0 +1,37 @@
+{
+    "SUCCESS_PHRASES": [
+      "That's it, congratulations!",
+      "Wow, you got there!",
+      "Ok you did pretty good",
+      "You did it!",
+      "None too shabby"
+    ],
+    "DID_BAD_PHRASES": [
+      "Wow, you're pretty bad at this, aren't you",
+      "You should be embarrassed",
+      "That was...an attempt...",
+      "How are you this bad bro",
+      "That was hard to watch"
+    ],
+    "DID_MEDIOCRE_PHRASES": [
+      "Mehh, you can do better :/",
+      "Not great, not horrible",
+      "Just do better next time, ok",
+      "Maybe your next guess will be good",
+      "That was...fine"
+    ],
+    "DID_FINE_PHRASES": [
+      "Oooh, almost there :D",
+      "You're so close!",
+      "You're like...almost decent at this",
+      "Sooooo close!",
+      "Bro come on, you got this"
+    ],
+    "DID_GOOD_PHRASES": [
+      "Just like death and taxes, you are inevitable",
+      "Actually based brodin",
+      "Yaass queen",
+      "Slay?",
+      "Beautifully done fam"
+    ]
+  }
