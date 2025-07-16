@@ -31,6 +31,7 @@ export default function RootLayout({
       >
         <Header />
         <main className="main-content">{children}</main>
+        <Analytics />
       </body>
     </html>
   );
