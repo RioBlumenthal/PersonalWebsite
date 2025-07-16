@@ -26,14 +26,14 @@ export default function Header() {
       </nav>
       <div className="header-spacer">
         <div className="social-icons">
-          <a href="https://www.instagram.com/yarglewithwings/" target="_blank" rel="noopener noreferrer">
-            <FaInstagram size={24} />
+          <a href="https://www.instagram.com/yarglewithwings/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <FaInstagram className="social-icon" />
           </a>
-          <a href="https://github.com/RioBlumenthal" target="_blank" rel="noopener noreferrer">
-            <FaGithub size={24} />
+          <a href="https://github.com/RioBlumenthal" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+            <FaGithub className="social-icon" />
           </a>
-          <a href="https://www.linkedin.com/in/rio-blumenthal/" target="_blank" rel="noopener noreferrer">
-            <FaLinkedin size={24} />
+          <a href="https://www.linkedin.com/in/rio-blumenthal/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+            <FaLinkedin className="social-icon" />
           </a>
         </div>
       </div>

@@ -32,6 +32,7 @@ export default function WordleUnlimited() {
   const [showRevealConfirm, setShowRevealConfirm] = useState(false);
   const [showNewGameConfirm, setShowNewGameConfirm] = useState(false);
   const [showHintConfirm, setShowHintConfirm] = useState(false);
+  const [isGeneratingHint, setIsGeneratingHint] = useState(false);
 
   const [squareAnimations, setSquareAnimations] = useState<{
     [key: number]: boolean;
@@ -486,9 +487,14 @@ export default function WordleUnlimited() {
 
               <button
                 onClick={() => setShowHintConfirm(true)}
-                className="bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-6 py-3 rounded-lg font-medium transition-colors duration-200 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]"
+                disabled={isGeneratingHint}
+                className={`px-6 py-3 rounded-lg font-medium transition-colors duration-200 ${
+                  isGeneratingHint
+                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed dark:bg-gray-600 dark:text-gray-400'
+                    : 'bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]'
+                }`}
               >
-                Hint
+                {isGeneratingHint ? 'Generating...' : 'Hint'}
               </button>
 
               <button
@@ -548,54 +554,45 @@ export default function WordleUnlimited() {
               <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50">
                 <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm mx-4 shadow-2xl border border-gray-200 dark:border-gray-600">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Get a Hint?
+                    Get an AI Hint?
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Are you sure you want a hint? This will reveal a letter that
-                    isn&apos;t already found.
+                    Are you sure you want an AI-generated hint? This will analyze your current progress and provide strategic advice.
                   </p>
                   <div className="flex space-x-3">
                     <button
-                      onClick={() => {
-                        // Find the first letter that isn't already green
-                        const secretWordArray = secretWord.split("");
-                        let hintLetter = "";
-                        let hintPosition = -1;
+                      onClick={async () => {
+                        setIsGeneratingHint(true);
+                        try {
+                          const response = await fetch('/api/hint', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                              secretWord,
+                              gameBoard,
+                              currentRow,
+                            }),
+                          });
 
-                        for (let i = 0; i < secretWordArray.length; i++) {
-                          const letter = secretWordArray[i];
-                          // Check if this position is already green (correctly guessed)
-                          const isAlreadyGreen = gameBoard.some(
-                            (row) => row[i] === letter
-                          );
-
-                          if (!isAlreadyGreen) {
-                            hintLetter = letter;
-                            hintPosition = i;
-                            break;
+                          if (!response.ok) {
+                            throw new Error('Failed to get hint');
                           }
-                        }
 
-                        if (hintLetter) {
-                          setMessage(
-                            `Hint: The ${hintPosition + 1}${
-                              hintPosition === 0
-                                ? "st"
-                                : hintPosition === 1
-                                ? "nd"
-                                : hintPosition === 2
-                                ? "rd"
-                                : "th"
-                            } letter is "${hintLetter.toUpperCase()}"`
-                          );
-                        } else {
-                          setMessage("You've already found all the letters!");
+                          const data = await response.json();
+                          setMessage(data.hint);
+                        } catch (error) {
+                          console.error('Error getting hint:', error);
+                          setMessage('Sorry, unable to generate hint right now.');
+                        } finally {
+                          setIsGeneratingHint(false);
+                          setShowHintConfirm(false);
                         }
-                        setShowHintConfirm(false);
                       }}
                       className="flex-1 bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-4 py-2 rounded-lg font-medium transition-colors duration-200 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]"
                     >
-                      Yes, Get Hint
+                      Yes, Get AI Hint
                     </button>
                     <button
                       onClick={() => setShowHintConfirm(false)}
