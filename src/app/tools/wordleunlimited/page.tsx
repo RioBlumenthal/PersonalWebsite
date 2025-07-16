@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 
 interface WordleData {
@@ -78,7 +78,7 @@ export default function WordleUnlimited() {
     return phrases[Math.floor(Math.random() * phrases.length)];
   };
 
-  const enterAction = (userWord: string) => {
+  const enterAction = useCallback((userWord: string) => {
     if (!wordleData) return;
 
     userWord = userWord.toLowerCase();
@@ -261,7 +261,7 @@ export default function WordleUnlimited() {
     } else {
       setMessage(userWord.toUpperCase() + " is not in word list");
     }
-  };
+  }, [wordleData, secretWord, gameBoard, currentRow, boardColors, keyColors, gameFinished, setMessage, setGameBoard, setBoardColors, setKeyColors, setCurrentRow, setGameFinished, setCurrentGuess, setSquareAnimations, getRandomPhrase]);
 
   // Add keyboard event listener
   useEffect(() => {
@@ -557,7 +557,7 @@ export default function WordleUnlimited() {
                     Get a Hint?
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Choose the type of hint you'd like:
+                    Choose the type of hint you&apos;d like:
                   </p>
                   <div className="flex flex-col space-y-3">
                     <button
