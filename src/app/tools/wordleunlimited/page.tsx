@@ -554,12 +554,12 @@ export default function WordleUnlimited() {
               <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50">
                 <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm mx-4 shadow-2xl border border-gray-200 dark:border-gray-600">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Get an AI Hint?
+                    Get a Hint?
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Are you sure you want an AI-generated hint? This will analyze your current progress and provide strategic advice.
+                    Choose the type of hint you'd like:
                   </p>
-                  <div className="flex space-x-3">
+                  <div className="flex flex-col space-y-3">
                     <button
                       onClick={async () => {
                         setIsGeneratingHint(true);
@@ -590,13 +590,60 @@ export default function WordleUnlimited() {
                           setShowHintConfirm(false);
                         }
                       }}
-                      className="flex-1 bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-4 py-2 rounded-lg font-medium transition-colors duration-200 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]"
+                      disabled={isGeneratingHint}
+                      className={`w-full px-4 py-3 rounded-lg font-medium transition-colors duration-200 ${
+                        isGeneratingHint
+                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed dark:bg-gray-600 dark:text-gray-400'
+                          : 'bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]'
+                      }`}
                     >
-                      Yes, Get AI Hint
+                      {isGeneratingHint ? 'Generating AI Hint...' : '🤖 AI Word Hint'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        // Find the first letter that isn't already green
+                        const secretWordArray = secretWord.split("");
+                        let hintLetter = "";
+                        let hintPosition = -1;
+
+                        for (let i = 0; i < secretWordArray.length; i++) {
+                          const letter = secretWordArray[i];
+                          // Check if this position is already green (correctly guessed)
+                          const isAlreadyGreen = gameBoard.some(
+                            (row) => row[i] === letter
+                          );
+
+                          if (!isAlreadyGreen) {
+                            hintLetter = letter;
+                            hintPosition = i;
+                            break;
+                          }
+                        }
+
+                        if (hintLetter) {
+                          setMessage(
+                            `Letter Hint: The ${hintPosition + 1}${
+                              hintPosition === 0
+                                ? "st"
+                                : hintPosition === 1
+                                ? "nd"
+                                : hintPosition === 2
+                                ? "rd"
+                                : "th"
+                            } letter is "${hintLetter.toUpperCase()}"`
+                          );
+                        } else {
+                          setMessage("You've already found all the letters!");
+                        }
+                        setShowHintConfirm(false);
+                      }}
+                      className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg font-medium transition-colors duration-200"
+                    >
+                      🔤 Letter Hint
                     </button>
                     <button
                       onClick={() => setShowHintConfirm(false)}
-                      className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                      className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
                     >
                       Cancel
                     </button>
