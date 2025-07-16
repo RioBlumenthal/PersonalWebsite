@@ -28,6 +28,8 @@ export default function WordleUnlimited() {
   const [showRevealConfirm, setShowRevealConfirm] = useState(false);
   const [showNewGameConfirm, setShowNewGameConfirm] = useState(false);
   const [showHintConfirm, setShowHintConfirm] = useState(false);
+  const [bouncingSquares, setBouncingSquares] = useState<Set<number>>(new Set());
+  const [squareAnimations, setSquareAnimations] = useState<{ [key: number]: boolean }>({});
 
   // Load data on component mount
   useEffect(() => {
@@ -122,11 +124,12 @@ export default function WordleUnlimited() {
         const randPhrase = getRandomPhrase(wordleData.phrases.SUCCESS_PHRASES);
         setMessage(randPhrase);
         
-        // Update board with all green
+        // Update board with pastel rainbow colors
         const newBoard = [...gameBoard];
         const newBoardColors = [...boardColors];
         newBoard[currentRow] = userWord.split('');
-        newBoardColors[currentRow] = Array(5).fill("#6aaa64"); // All green
+        const rainbowColors = ["#ff6b6b", "#ffa07a", "#ffd93d", "#6bcf7f", "#4d9de0"]; // Pastel Red, Orange, Yellow, Green, Blue
+        newBoardColors[currentRow] = rainbowColors;
         setGameBoard(newBoard);
         setBoardColors(newBoardColors);
         
@@ -136,6 +139,14 @@ export default function WordleUnlimited() {
           newKeyColors[letter.toUpperCase()] = "#6aaa64";
         });
         setKeyColors(newKeyColors);
+        
+        // Start dramatic wave animation with multiple squares in air
+        setSquareAnimations({ 0: true });
+        setTimeout(() => setSquareAnimations(prev => ({ ...prev, 1: true })), 150);
+        setTimeout(() => setSquareAnimations(prev => ({ ...prev, 2: true })), 300);
+        setTimeout(() => setSquareAnimations(prev => ({ ...prev, 3: true })), 450);
+        setTimeout(() => setSquareAnimations(prev => ({ ...prev, 4: true })), 600);
+        setTimeout(() => setSquareAnimations({}), 1800);
         
         setGameFinished(true);
         return;
@@ -278,12 +289,32 @@ export default function WordleUnlimited() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="min-h-screen py-8 px-4"
-    >
+    <>
+      <style jsx>{`
+        @keyframes smoothBounce {
+          0%, 10%, 60%, 85%, 100% {
+            transform: translate3d(0, 0, 0);
+          }
+          25%, 30% {
+            transform: translate3d(0, -20px, 0);
+          }
+          70% {
+            transform: translate3d(0, -10px, 0);
+          }
+          90% {
+            transform: translate3d(0, -5px, 0);
+          }
+        }
+        .smooth-bounce {
+          animation: smoothBounce 1.2s ease-in-out;
+        }
+      `}</style>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="min-h-screen py-8 px-4"
+      >
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-8">
           Wordle Unlimited
@@ -300,6 +331,10 @@ export default function WordleUnlimited() {
                     className={`w-12 h-12 border-2 border-gray-300 flex items-center justify-center text-xl font-bold mx-1 ${
                       row === currentRow && col < currentGuess.length
                         ? "border-gray-900"
+                        : ""
+                    } ${
+                      gameFinished && row === currentRow && squareAnimations[col]
+                        ? "smooth-bounce"
                         : ""
                     }`}
                     style={{
@@ -410,6 +445,7 @@ export default function WordleUnlimited() {
                       setGameFinished(false);
                       setCurrentRow(0);
                       setCurrentGuess("");
+                      setSquareAnimations({});
                       setShowNewGameConfirm(false);
                     }}
                     className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
@@ -509,6 +545,7 @@ export default function WordleUnlimited() {
           )}
         </div>
       </div>
-    </motion.div>
+      </motion.div>
+    </>
   );
 } 
