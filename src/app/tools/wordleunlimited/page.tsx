@@ -25,6 +25,9 @@ export default function WordleUnlimited() {
   const [message, setMessage] = useState("");
   const [gameFinished, setGameFinished] = useState(false);
   const [currentGuess, setCurrentGuess] = useState("");
+  const [showRevealConfirm, setShowRevealConfirm] = useState(false);
+  const [showNewGameConfirm, setShowNewGameConfirm] = useState(false);
+  const [showHintConfirm, setShowHintConfirm] = useState(false);
 
   // Load data on component mount
   useEffect(() => {
@@ -44,12 +47,11 @@ export default function WordleUnlimited() {
         setWordleData({ wordsToPickFrom, allowedWords, phrases });
         
         // Set random secret word
-                        const randomIndex = Math.floor(Math.random() * wordsToPickFrom.length);
-                const secretWord = wordsToPickFrom[randomIndex];
-                setSecretWord(secretWord);
-                setGameBoard(Array(6).fill(Array(5).fill("")));
-                setBoardColors(Array(6).fill(Array(5).fill("#ffffff")));
-                setMessage("The secret word is: " + secretWord.toUpperCase());
+        const randomIndex = Math.floor(Math.random() * wordsToPickFrom.length);
+        const secretWord = wordsToPickFrom[randomIndex];
+        setSecretWord(secretWord);
+        setGameBoard(Array(6).fill(Array(5).fill("")));
+        setBoardColors(Array(6).fill(Array(5).fill("#ffffff")));
       } catch (error) {
         console.error('Error loading wordle data:', error);
       }
@@ -64,6 +66,11 @@ export default function WordleUnlimited() {
       if (gameFinished) return;
       
       const key = event.key.toUpperCase();
+      
+      // Prevent Enter from triggering buttons when they're focused
+      if (key === "ENTER" && document.activeElement?.tagName === "BUTTON") {
+        return;
+      }
       
       if (key === "ENTER") {
         if (currentGuess.length === 5) {
@@ -117,8 +124,18 @@ export default function WordleUnlimited() {
         
         // Update board with all green
         const newBoard = [...gameBoard];
+        const newBoardColors = [...boardColors];
         newBoard[currentRow] = userWord.split('');
+        newBoardColors[currentRow] = Array(5).fill("#6aaa64"); // All green
         setGameBoard(newBoard);
+        setBoardColors(newBoardColors);
+        
+        // Update keyboard colors for all letters
+        const newKeyColors = { ...keyColors };
+        userWord.split('').forEach(letter => {
+          newKeyColors[letter.toUpperCase()] = "#6aaa64";
+        });
+        setKeyColors(newKeyColors);
         
         setGameFinished(true);
         return;
@@ -241,7 +258,7 @@ export default function WordleUnlimited() {
   };
 
   const getSquareColor = (row: number, col: number): string => {
-    if (row >= currentRow) return "#ffffff";
+    if (row >= currentRow && !gameFinished) return "#ffffff";
     
     const letter = gameBoard[row][col];
     if (!letter) return "#ffffff";
@@ -267,104 +284,230 @@ export default function WordleUnlimited() {
       transition={{ duration: 0.5 }}
       className="min-h-screen py-8 px-4"
     >
-      <div className="max-w-md mx-auto">
+      <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-8">
           Wordle Unlimited
         </h1>
         
-        {/* Game Board */}
-        <div className="mb-8">
-          {Array(6).fill(null).map((_, row) => (
-            <div key={row} className="flex justify-center mb-2">
-              {Array(5).fill(null).map((_, col) => (
-                <div
-                  key={col}
-                  className={`w-12 h-12 border-2 border-gray-300 flex items-center justify-center text-xl font-bold mx-1 ${
-                    row === currentRow && col < currentGuess.length
-                      ? "border-gray-900"
-                      : ""
-                  }`}
-                  style={{
-                    backgroundColor: getSquareColor(row, col),
-                    color: getSquareColor(row, col) === "#ffffff" ? "#000" : "#fff"
-                  }}
-                >
-                  {row === currentRow && col < currentGuess.length
-                    ? currentGuess[col].toUpperCase()
-                    : gameBoard[row][col]?.toUpperCase() || ""}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-
-        {/* Message */}
-        {message && (
-          <div className="text-center mb-6 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
-            <p className="text-gray-800 dark:text-gray-200">{message}</p>
+        <div className="max-w-4xl mx-auto">
+          {/* Game Board */}
+          <div className="mb-8">
+            {Array(6).fill(null).map((_, row) => (
+              <div key={row} className="flex justify-center mb-2">
+                {Array(5).fill(null).map((_, col) => (
+                  <div
+                    key={col}
+                    className={`w-12 h-12 border-2 border-gray-300 flex items-center justify-center text-xl font-bold mx-1 ${
+                      row === currentRow && col < currentGuess.length
+                        ? "border-gray-900"
+                        : ""
+                    }`}
+                    style={{
+                      backgroundColor: getSquareColor(row, col),
+                      color: getSquareColor(row, col) === "#ffffff" ? "#000" : "#fff"
+                    }}
+                  >
+                    {row === currentRow && col < currentGuess.length
+                      ? currentGuess[col].toUpperCase()
+                      : gameBoard[row][col]?.toUpperCase() || ""}
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
-        )}
 
-        {/* Virtual Keyboard */}
-        <div className="space-y-2">
-          {["qwertyuiop", "asdfghjkl", "zxcvbnm"].map((row, rowIndex) => (
-            <div key={rowIndex} className="flex justify-center">
-              {row.split("").map((key) => (
-                <button
-                  key={key}
-                  onClick={() => handleKeyPress(key)}
-                  className={`w-8 h-10 mx-1 rounded text-sm font-medium ${
-                    keyColors[key.toUpperCase()]
-                      ? "text-white"
-                      : "bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200"
-                  }`}
-                  style={{
-                    backgroundColor: keyColors[key.toUpperCase()] || ""
-                  }}
-                >
-                  {key.toUpperCase()}
-                </button>
-              ))}
-              {rowIndex === 2 && (
-                <>
-                  <button
-                    onClick={() => handleKeyPress("ENTER")}
-                    className="w-12 h-10 mx-1 rounded bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 text-xs font-medium"
-                  >
-                    ENTER
-                  </button>
-                  <button
-                    onClick={() => handleKeyPress("BACKSPACE")}
-                    className="w-12 h-10 mx-1 rounded bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 text-xs font-medium"
-                  >
-                    ←
-                  </button>
-                </>
-              )}
+          {/* Message */}
+          {message && (
+            <div className="text-center mb-6 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <p className="text-gray-800 dark:text-gray-200">{message}</p>
             </div>
-          ))}
-        </div>
+          )}
 
-        {/* New Game Button */}
-        {gameFinished && (
-          <div className="text-center mt-6">
+          {/* Virtual Keyboard */}
+          <div className="space-y-2 mb-6">
+            {["qwertyuiop", "asdfghjkl", "zxcvbnm"].map((row, rowIndex) => (
+              <div key={rowIndex} className="flex justify-center">
+                {row.split("").map((key) => (
+                  <button
+                    key={key}
+                    onClick={() => handleKeyPress(key)}
+                    className={`w-8 h-10 mx-1 rounded text-sm font-medium ${
+                      keyColors[key.toUpperCase()]
+                        ? "text-white"
+                        : "bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200"
+                    }`}
+                    style={{
+                      backgroundColor: keyColors[key.toUpperCase()] || ""
+                    }}
+                  >
+                    {key.toUpperCase()}
+                  </button>
+                ))}
+                {rowIndex === 2 && (
+                  <>
+                    <button
+                      onClick={() => handleKeyPress("ENTER")}
+                      className="w-12 h-10 mx-1 rounded bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 text-xs font-medium"
+                    >
+                      ENTER
+                    </button>
+                    <button
+                      onClick={() => handleKeyPress("BACKSPACE")}
+                      className="w-12 h-10 mx-1 rounded bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 text-xs font-medium"
+                    >
+                      ←
+                    </button>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Game Controls - Horizontal Row */}
+          <div className="flex justify-center space-x-4">
             <button
-              onClick={() => {
-                const randomIndex = Math.floor(Math.random() * wordleData.wordsToPickFrom.length);
-                setSecretWord(wordleData.wordsToPickFrom[randomIndex]);
-                setGameBoard(Array(6).fill(Array(5).fill("")));
-                setKeyColors({});
-                setMessage("");
-                setGameFinished(false);
-                setCurrentRow(0);
-                setCurrentGuess("");
-              }}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+              onClick={() => setShowNewGameConfirm(true)}
+              className="bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-6 py-3 rounded-lg font-medium transition-colors duration-200 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]"
             >
               New Game
             </button>
+            
+            <button
+              onClick={() => setShowHintConfirm(true)}
+              className="bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-6 py-3 rounded-lg font-medium transition-colors duration-200 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]"
+            >
+              Hint
+            </button>
+            
+            <button
+              onClick={() => setShowRevealConfirm(true)}
+              className="bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-6 py-3 rounded-lg font-medium transition-colors duration-200 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]"
+            >
+              Reveal Word
+            </button>
           </div>
-        )}
+
+          {/* Confirmation Dialogs */}
+          {showNewGameConfirm && (
+            <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm mx-4 shadow-2xl border border-gray-200 dark:border-gray-600">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Start New Game?
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  Are you sure you want to start a new game? Your current progress will be lost.
+                </p>
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => {
+                      const randomIndex = Math.floor(Math.random() * wordleData.wordsToPickFrom.length);
+                      const newSecretWord = wordleData.wordsToPickFrom[randomIndex];
+                      setSecretWord(newSecretWord);
+                      setGameBoard(Array(6).fill(Array(5).fill("")));
+                      setBoardColors(Array(6).fill(Array(5).fill("#ffffff")));
+                      setKeyColors({});
+                      setMessage("");
+                      setGameFinished(false);
+                      setCurrentRow(0);
+                      setCurrentGuess("");
+                      setShowNewGameConfirm(false);
+                    }}
+                    className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                  >
+                    Yes, New Game
+                  </button>
+                  <button
+                    onClick={() => setShowNewGameConfirm(false)}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showHintConfirm && (
+            <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm mx-4 shadow-2xl border border-gray-200 dark:border-gray-600">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Get a Hint?
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  Are you sure you want a hint? This will reveal a letter that isn't already found.
+                </p>
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => {
+                      // Find the first letter that isn't already green
+                      const secretWordArray = secretWord.split('');
+                      let hintLetter = '';
+                      let hintPosition = -1;
+                      
+                      for (let i = 0; i < secretWordArray.length; i++) {
+                        const letter = secretWordArray[i];
+                        // Check if this position is already green (correctly guessed)
+                        const isAlreadyGreen = gameBoard.some(row => row[i] === letter);
+                        
+                        if (!isAlreadyGreen) {
+                          hintLetter = letter;
+                          hintPosition = i;
+                          break;
+                        }
+                      }
+                      
+                      if (hintLetter) {
+                        setMessage(`Hint: The ${hintPosition + 1}${hintPosition === 0 ? 'st' : hintPosition === 1 ? 'nd' : hintPosition === 2 ? 'rd' : 'th'} letter is "${hintLetter.toUpperCase()}"`);
+                      } else {
+                        setMessage("You've already found all the letters!");
+                      }
+                      setShowHintConfirm(false);
+                    }}
+                    className="flex-1 bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-4 py-2 rounded-lg font-medium transition-colors duration-200 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]"
+                  >
+                    Yes, Get Hint
+                  </button>
+                  <button
+                    onClick={() => setShowHintConfirm(false)}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showRevealConfirm && (
+            <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm mx-4 shadow-2xl border border-gray-200 dark:border-gray-600">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Reveal Word?
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  Are you sure you want to reveal the secret word? This will end the game.
+                </p>
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => {
+                      setMessage(`The word is: ${secretWord.toUpperCase()}`);
+                      setShowRevealConfirm(false);
+                    }}
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                  >
+                    Yes, Reveal
+                  </button>
+                  <button
+                    onClick={() => setShowRevealConfirm(false)}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );
