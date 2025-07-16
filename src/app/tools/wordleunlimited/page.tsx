@@ -28,10 +28,10 @@ export default function WordleUnlimited() {
   const [showRevealConfirm, setShowRevealConfirm] = useState(false);
   const [showNewGameConfirm, setShowNewGameConfirm] = useState(false);
   const [showHintConfirm, setShowHintConfirm] = useState(false);
-  const [bouncingSquares, setBouncingSquares] = useState<Set<number>>(new Set());
+
   const [squareAnimations, setSquareAnimations] = useState<{ [key: number]: boolean }>({});
 
-  // Load data on component mount
+    // Load data on component mount
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -49,65 +49,24 @@ export default function WordleUnlimited() {
         setWordleData({ wordsToPickFrom, allowedWords, phrases });
         
         // Set random secret word
-        const randomIndex = Math.floor(Math.random() * wordsToPickFrom.length);
-        const secretWord = wordsToPickFrom[randomIndex];
-        setSecretWord(secretWord);
-        setGameBoard(Array(6).fill(Array(5).fill("")));
-        setBoardColors(Array(6).fill(Array(5).fill("#ffffff")));
-      } catch (error) {
-        console.error('Error loading wordle data:', error);
-      }
-    };
-
-    loadData();
-  }, []);
-
-  // Add keyboard event listener
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (gameFinished) return;
-      
-      const key = event.key.toUpperCase();
-      
-      // Prevent Enter from triggering buttons when they're focused
-      if (key === "ENTER" && document.activeElement?.tagName === "BUTTON") {
-        return;
-      }
-      
-      if (key === "ENTER") {
-        if (currentGuess.length === 5) {
-          enterAction(currentGuess);
+                        const randomIndex = Math.floor(Math.random() * wordsToPickFrom.length);
+                const secretWord = wordsToPickFrom[randomIndex];
+                setSecretWord(secretWord);
+                setGameBoard(Array(6).fill(Array(5).fill("")));
+                setBoardColors(Array(6).fill(Array(5).fill("#ffffff")));
+        } catch (error) {
+          console.error('Error loading wordle data:', error);
         }
-      } else if (key === "BACKSPACE") {
-        setCurrentGuess(prev => prev.slice(0, -1));
-      } else if (key.length === 1 && /^[A-Za-z]$/.test(key)) {
-        if (currentGuess.length < 5) {
-          setCurrentGuess(prev => prev + key.toLowerCase());
-        }
-      }
-    };
+      };
 
-    window.addEventListener('keydown', handleKeyDown);
-    
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [currentGuess, gameFinished]);
+      loadData();
+    }, []);
 
   const isStringInSet = (string: string, set: Set<string>): boolean => {
     return set.has(string);
   };
 
-  const setFirstValueToYellow = (letter: string, array: string[]): string[] => {
-    const newArray = [...array];
-    for (let i = 0; i < newArray.length; i++) {
-      if (newArray[i] === letter) {
-        newArray[i] = "yellow";
-        break;
-      }
-    }
-    return newArray;
-  };
+
 
   const getRandomPhrase = (phrases: string[]): string => {
     return phrases[Math.floor(Math.random() * phrases.length)];
@@ -251,6 +210,38 @@ export default function WordleUnlimited() {
       setMessage(userWord.toUpperCase() + " is not in word list");
     }
   };
+
+  // Add keyboard event listener
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (gameFinished) return;
+      
+      const key = event.key.toUpperCase();
+      
+      // Prevent Enter from triggering buttons when they're focused
+      if (key === "ENTER" && document.activeElement?.tagName === "BUTTON") {
+        return;
+      }
+      
+      if (key === "ENTER") {
+        if (currentGuess.length === 5) {
+          enterAction(currentGuess);
+        }
+      } else if (key === "BACKSPACE") {
+        setCurrentGuess(prev => prev.slice(0, -1));
+      } else if (key.length === 1 && /^[A-Za-z]$/.test(key)) {
+        if (currentGuess.length < 5) {
+          setCurrentGuess(prev => prev + key.toLowerCase());
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [currentGuess, gameFinished, enterAction]);
 
   const handleKeyPress = (key: string) => {
     if (gameFinished) return;
@@ -469,9 +460,9 @@ export default function WordleUnlimited() {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                   Get a Hint?
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  Are you sure you want a hint? This will reveal a letter that isn't already found.
-                </p>
+                                  <p className="text-gray-600 dark:text-gray-300 mb-6">
+                    Are you sure you want a hint? This will reveal a letter that isn&apos;t already found.
+                  </p>
                 <div className="flex space-x-3">
                   <button
                     onClick={() => {
