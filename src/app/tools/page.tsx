@@ -16,64 +16,84 @@ export default function Tools() {
           Interactive Tools
         </h1>
         
-        {/* Wordle Unlimited Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            Wordle Unlimited
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Classic Wordle Game
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">
-                Play unlimited games of Wordle with my custom implementation! 
-                Features include:
-              </p>
-              <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-2 mb-6">
-                <li>• Unlimited games with random words</li>
-                <li>• Custom feedback messages</li>
-                <li>• Color-coded keyboard hints</li>
-                <li>• Responsive design</li>
-              </ul>
-              <Link
-                href="/tools/wordleunlimited"
-                className="bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-6 py-3 rounded-lg font-medium transition-colors duration-200 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed] inline-flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Play Wordle Unlimited
-              </Link>
-            </div>
-            
-            <div className="flex items-center justify-center">
-              <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-6 w-full max-w-xs">
-                <div className="grid grid-cols-5 gap-1 mb-2">
-                  {Array(5).fill(null).map((_, i) => (
-                    <div key={i} className="w-8 h-8 border-2 border-gray-300 flex items-center justify-center text-sm font-bold bg-green-500 text-white">
-                      W
+        {/* Tools Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Wordle Unlimited Card */}
+          <Link href="/tools/wordleunlimited" className="group">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 w-20 h-20 flex items-center justify-center">
+                    <div className="grid grid-cols-5 gap-0.5">
+                      {Array(5).fill(null).map((_, i) => (
+                        <div key={i} className="w-3 h-3 border border-gray-300 flex items-center justify-center text-xs font-bold bg-green-500 text-white">
+                          W
+                        </div>
+                      ))}
+                      {Array(5).fill(null).map((_, i) => (
+                        <div key={i + 5} className="w-3 h-3 border border-gray-300 flex items-center justify-center text-xs font-bold bg-yellow-500 text-white">
+                          O
+                        </div>
+                      ))}
+                      {Array(5).fill(null).map((_, i) => (
+                        <div key={i + 10} className="w-3 h-3 border border-gray-300 flex items-center justify-center text-xs font-bold">
+                          R
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
-                <div className="grid grid-cols-5 gap-1 mb-2">
-                  {Array(5).fill(null).map((_, i) => (
-                    <div key={i} className="w-8 h-8 border-2 border-gray-300 flex items-center justify-center text-sm font-bold bg-yellow-500 text-white">
-                      O
-                    </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-5 gap-1">
-                  {Array(5).fill(null).map((_, i) => (
-                    <div key={i} className="w-8 h-8 border-2 border-gray-300 flex items-center justify-center text-sm font-bold">
-                      R
-                    </div>
-                  ))}
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
+                    Wordle Unlimited
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    Play unlimited games of Wordle with AI-powered hints and custom feedback.
+                  </p>
+                  <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                    <span>Unlimited games • AI hints • Responsive</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
+
+          {/* QR Code Generator Card */}
+          <Link href="/tools/qrgenerator" className="group">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 w-20 h-20 flex items-center justify-center">
+                    <div className="grid grid-cols-8 gap-0.5">
+                      {Array(64).fill(null).map((_, i) => (
+                        <div 
+                          key={i} 
+                          className={`w-1.5 h-1.5 ${
+                            i % 9 === 0 || i % 9 === 8 || Math.floor(i / 8) === 0 || Math.floor(i / 8) === 7
+                              ? 'bg-black'
+                              : (i % 3 === 0 && i % 5 === 0) || (i % 7 === 0)
+                              ? 'bg-black'
+                              : 'bg-white'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
+                    QR Code Generator
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    Generate QR codes for any text, URL, or contact information instantly.
+                  </p>
+                  <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                    <span>Instant generation • PNG download • Dark mode</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
         </div>
       </div>
     </motion.div>
