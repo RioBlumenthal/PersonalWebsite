@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 interface WordleData {
   wordsToPickFrom: string[];
-  allowedWords: string[];
+  allowedWords: Set<string>;
   phrases: {
     SUCCESS_PHRASES: string[];
     DID_BAD_PHRASES: string[];
@@ -20,6 +20,7 @@ export default function WordleUnlimited() {
   const [secretWord, setSecretWord] = useState("");
   const [currentRow, setCurrentRow] = useState(0);
   const [gameBoard, setGameBoard] = useState<string[][]>(Array(6).fill(Array(5).fill("")));
+  const [boardColors, setBoardColors] = useState<string[][]>(Array(6).fill(Array(5).fill("#ffffff")));
   const [keyColors, setKeyColors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
   const [gameFinished, setGameFinished] = useState(false);
@@ -36,14 +37,19 @@ export default function WordleUnlimited() {
         ]);
 
         const wordsToPickFrom = await wordsResponse.json();
-        const allowedWords = await allowedResponse.json();
+        const allowedWordsArray = await allowedResponse.json() as string[];
+        const allowedWords = new Set(allowedWordsArray);
         const phrases = await phrasesResponse.json();
 
         setWordleData({ wordsToPickFrom, allowedWords, phrases });
         
         // Set random secret word
-        const randomIndex = Math.floor(Math.random() * wordsToPickFrom.length);
-        setSecretWord(wordsToPickFrom[randomIndex]);
+                        const randomIndex = Math.floor(Math.random() * wordsToPickFrom.length);
+                const secretWord = wordsToPickFrom[randomIndex];
+                setSecretWord(secretWord);
+                setGameBoard(Array(6).fill(Array(5).fill("")));
+                setBoardColors(Array(6).fill(Array(5).fill("#ffffff")));
+                setMessage("The secret word is: " + secretWord.toUpperCase());
       } catch (error) {
         console.error('Error loading wordle data:', error);
       }
@@ -79,8 +85,8 @@ export default function WordleUnlimited() {
     };
   }, [currentGuess, gameFinished]);
 
-  const isStringInArray = (string: string, array: string[]): boolean => {
-    return array.includes(string);
+  const isStringInSet = (string: string, set: Set<string>): boolean => {
+    return set.has(string);
   };
 
   const setFirstValueToYellow = (letter: string, array: string[]): string[] => {
@@ -103,7 +109,7 @@ export default function WordleUnlimited() {
 
     userWord = userWord.toLowerCase();
     
-    if (isStringInArray(userWord, wordleData.allowedWords)) {
+    if (isStringInSet(userWord, wordleData.allowedWords)) {
       if (userWord === secretWord || userWord === "jimmy") {
         // Success!
         const randPhrase = getRandomPhrase(wordleData.phrases.SUCCESS_PHRASES);
@@ -119,33 +125,42 @@ export default function WordleUnlimited() {
       } else {
         // Process the guess
         const colorOutput = new Array(5).fill(null);
-        const lettersSecret = secretWord.split('');
-
-        // Check for exact matches (green)
+        const secretWordArray = secretWord.split('');
+        
+        // Count letters in secret word (excluding exact matches)
+        const letterCounts: { [key: string]: number } = {};
+        for (let i = 0; i < 5; i++) {
+          const letter = secretWordArray[i];
+          letterCounts[letter] = (letterCounts[letter] || 0) + 1;
+        }
+        
+        // First pass: Mark exact matches as green
         for (let i = 0; i < 5; i++) {
           const currentInputChar = userWord[i];
           const uppercaseCurrentInputChar = currentInputChar.toUpperCase();
           
-          if (currentInputChar === lettersSecret[i]) {
+          if (currentInputChar === secretWordArray[i]) {
             colorOutput[i] = "green";
-            lettersSecret[i] = "green";
+            letterCounts[currentInputChar]--;
             setKeyColors(prev => ({ ...prev, [uppercaseCurrentInputChar]: "#6aaa64" }));
           }
         }
-
-        // Check for partial matches (yellow) and misses (grey)
+        
+        // Second pass: Mark partial matches as yellow
         for (let i = 0; i < 5; i++) {
           if (colorOutput[i] === null) {
             const currentInputChar = userWord[i];
             const uppercaseCurrentInputChar = currentInputChar.toUpperCase();
             
-            if (isStringInArray(currentInputChar, lettersSecret)) {
+            if (letterCounts[currentInputChar] && letterCounts[currentInputChar] > 0) {
+              // Letter is available, mark as yellow
               colorOutput[i] = "yellow";
-              setFirstValueToYellow(currentInputChar, lettersSecret);
+              letterCounts[currentInputChar]--;
               if (keyColors[uppercaseCurrentInputChar] !== "#6aaa64") {
                 setKeyColors(prev => ({ ...prev, [uppercaseCurrentInputChar]: "#c9b458" }));
               }
             } else {
+              // Letter not available or doesn't exist
               colorOutput[i] = "grey";
               if (keyColors[uppercaseCurrentInputChar] !== "#6aaa64" && 
                   keyColors[uppercaseCurrentInputChar] !== "#c9b458") {
@@ -155,10 +170,20 @@ export default function WordleUnlimited() {
           }
         }
 
-        // Update board
+        // Update board and colors
         const newBoard = [...gameBoard];
+        const newBoardColors = [...boardColors];
         newBoard[currentRow] = userWord.split('');
+        newBoardColors[currentRow] = colorOutput.map(color => {
+          switch (color) {
+            case "green": return "#6aaa64";
+            case "yellow": return "#c9b458";
+            case "grey": return "#787c7e";
+            default: return "#ffffff";
+          }
+        });
         setGameBoard(newBoard);
+        setBoardColors(newBoardColors);
 
         // Count colors for message
         let numGrays = 0, numCorrect = 0, numPresent = 0;
@@ -195,7 +220,7 @@ export default function WordleUnlimited() {
         setCurrentGuess("");
       }
     } else {
-      setMessage(userWord + " is not in word list");
+      setMessage(userWord.toUpperCase() + " is not in word list");
     }
   };
 
@@ -221,11 +246,7 @@ export default function WordleUnlimited() {
     const letter = gameBoard[row][col];
     if (!letter) return "#ffffff";
     
-    // This is a simplified version - in a real implementation,
-    // you'd track the color state for each square
-    if (letter === secretWord[col]) return "#6aaa64";
-    if (secretWord.includes(letter)) return "#c9b458";
-    return "#787c7e";
+    return boardColors[row][col] || "#ffffff";
   };
 
   if (!wordleData) {
