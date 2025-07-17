@@ -58,6 +58,34 @@ export default function Tools() {
             </div>
           </Link>
 
+          {/* MTG Guesser Card */}
+          <Link href="/tools/mtgguesser" className="group">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 w-20 h-20 flex items-center justify-center">
+                    <img
+                      src="/tools/mtgguesser/Magic_card_back.webp"
+                      alt="MTG Card Back"
+                      className="w-12 h-16 object-cover rounded"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
+                    MTG Guesser
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    Guess Magic: The Gathering cards based on progressively revealed information.
+                  </p>
+                  <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                    <span>Progressive hints • Card database • Multiple formats</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+
           {/* QR Code Generator Card */}
           <Link href="/tools/qrgenerator" className="group">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
