@@ -261,7 +261,7 @@ export default function WordleUnlimited() {
     } else {
       setMessage(userWord.toUpperCase() + " is not in word list");
     }
-  }, [wordleData, secretWord, gameBoard, currentRow, boardColors, keyColors, gameFinished, setMessage, setGameBoard, setBoardColors, setKeyColors, setCurrentRow, setGameFinished, setCurrentGuess, setSquareAnimations, getRandomPhrase]);
+  }, [wordleData, secretWord, gameBoard, currentRow, boardColors, keyColors, setMessage, setGameBoard, setBoardColors, setKeyColors, setCurrentRow, setGameFinished, setCurrentGuess, setSquareAnimations, getRandomPhrase]);
 
   // Add keyboard event listener
   useEffect(() => {
@@ -423,7 +423,7 @@ export default function WordleUnlimited() {
                     <button
                       key={key}
                       onClick={() => handleKeyPress(key)}
-                      className={`w-8 h-10 mx-1 rounded text-sm font-medium ${
+                      className={`w-8 h-10 mx-1 rounded text-sm font-medium shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200 ${
                         keyColors[key.toUpperCase()]
                           ? "text-white"
                           : "bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200"
@@ -439,13 +439,13 @@ export default function WordleUnlimited() {
                     <>
                       <button
                         onClick={() => handleKeyPress("ENTER")}
-                        className="w-12 h-10 mx-1 rounded bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 text-xs font-medium"
+                        className="w-12 h-10 mx-1 rounded bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 text-xs font-medium shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                       >
                         ENTER
                       </button>
                       <button
                         onClick={() => handleKeyPress("BACKSPACE")}
-                        className="w-12 h-10 mx-1 rounded bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 text-xs font-medium"
+                        className="w-12 h-10 mx-1 rounded bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 text-xs font-medium shadow-sm hover:shadow-md hover:scale-110 transition-all duration-200"
                       >
                         ←
                       </button>
@@ -480,7 +480,7 @@ export default function WordleUnlimited() {
                     setShowNewGameConfirm(true);
                   }
                 }}
-                className="bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-6 py-3 rounded-lg font-medium transition-colors duration-200 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]"
+                className="bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]"
               >
                 New Game
               </button>
@@ -488,10 +488,10 @@ export default function WordleUnlimited() {
               <button
                 onClick={() => setShowHintConfirm(true)}
                 disabled={isGeneratingHint}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors duration-200 ${
+                className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                   isGeneratingHint
-                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed dark:bg-gray-600 dark:text-gray-400'
-                    : 'bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]'
+                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed dark:bg-gray-600 dark:text-gray-400 shadow-sm'
+                    : 'bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] shadow-md hover:shadow-lg hover:scale-105 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]'
                 }`}
               >
                 {isGeneratingHint ? 'Generating...' : 'Hint'}
@@ -499,7 +499,7 @@ export default function WordleUnlimited() {
 
               <button
                 onClick={() => setShowRevealConfirm(true)}
-                className="bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-6 py-3 rounded-lg font-medium transition-colors duration-200 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]"
+                className="bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]"
               >
                 Reveal Word
               </button>
@@ -535,13 +535,13 @@ export default function WordleUnlimited() {
                         setSquareAnimations({});
                         setShowNewGameConfirm(false);
                       }}
-                      className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                      className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105"
                     >
                       Yes, New Game
                     </button>
                     <button
                       onClick={() => setShowNewGameConfirm(false)}
-                      className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                      className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105"
                     >
                       Cancel
                     </button>
@@ -591,10 +591,10 @@ export default function WordleUnlimited() {
                         }
                       }}
                       disabled={isGeneratingHint}
-                      className={`w-full px-4 py-3 rounded-lg font-medium transition-colors duration-200 ${
+                      className={`w-full px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
                         isGeneratingHint
-                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed dark:bg-gray-600 dark:text-gray-400'
-                          : 'bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]'
+                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed dark:bg-gray-600 dark:text-gray-400 shadow-sm'
+                          : 'bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] shadow-md hover:shadow-lg hover:scale-105 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed]'
                       }`}
                     >
                       {isGeneratingHint ? 'Generating AI Hint...' : '🤖 AI Word Hint'}
@@ -637,13 +637,13 @@ export default function WordleUnlimited() {
                         }
                         setShowHintConfirm(false);
                       }}
-                      className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg font-medium transition-colors duration-200"
+                      className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105"
                     >
                       🔤 Letter Hint
                     </button>
                     <button
                       onClick={() => setShowHintConfirm(false)}
-                      className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                      className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105"
                     >
                       Cancel
                     </button>
@@ -668,13 +668,13 @@ export default function WordleUnlimited() {
                         setMessage(`The word is: ${secretWord.toUpperCase()}`);
                         setShowRevealConfirm(false);
                       }}
-                      className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                      className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105"
                     >
                       Yes, Reveal
                     </button>
                     <button
                       onClick={() => setShowRevealConfirm(false)}
-                      className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                      className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105"
                     >
                       Cancel
                     </button>

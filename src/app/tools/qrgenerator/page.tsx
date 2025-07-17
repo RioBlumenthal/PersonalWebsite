@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import QRCode from "qrcode";
+import Image from "next/image";
 
 export default function QRGenerator() {
   const [text, setText] = useState("");
@@ -133,10 +134,12 @@ export default function QRGenerator() {
               {qrCodeDataUrl ? (
                 <div className="text-center">
                   <div className="bg-white p-4 rounded-lg shadow-lg mb-4">
-                    <img
+                    <Image
                       src={qrCodeDataUrl}
                       alt="Generated QR Code"
-                      className="w-64 h-64 mx-auto"
+                      width={256}
+                      height={256}
+                      className="mx-auto"
                     />
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
