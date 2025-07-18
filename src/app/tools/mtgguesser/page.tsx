@@ -23,7 +23,7 @@ export default function MTGGuesser() {
   const [userGuess, setUserGuess] = useState("");
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showAnswer, setShowAnswer] = useState(false);
+
   const [score, setScore] = useState({ correct: 0, total: 0 });
   const [error, setError] = useState("");
   const [hintLevel, setHintLevel] = useState(0);
@@ -36,7 +36,7 @@ export default function MTGGuesser() {
     setError("");
     setUserGuess("");
     setIsCorrect(null);
-    setShowAnswer(false);
+
     setHintLevel(0);
     setGuessCount(0);
     setGameFinished(false);
@@ -138,7 +138,6 @@ export default function MTGGuesser() {
   };
 
   const handleRevealAnswer = () => {
-    setShowAnswer(true);
     setGameFinished(true);
     setIsCorrect(false);
     setScore(prev => ({ ...prev, total: prev.total + 1 }));
@@ -253,9 +252,10 @@ export default function MTGGuesser() {
             <div className="flex justify-center mb-8">
               <div className="relative">
                 <img
-                  src={cardData.image_uris.art_crop}
+                  src={cardData.image_uris?.art_crop || ''}
                   alt="Card artwork"
                   className="rounded-lg shadow-lg max-w-sm w-full"
+                  loading="lazy"
                 />
                 <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
                   {cardData.rarity}

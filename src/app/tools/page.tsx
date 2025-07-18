@@ -68,6 +68,7 @@ export default function Tools() {
                       src="/tools/mtgguesser/Magic_card_back.webp"
                       alt="MTG Card Back"
                       className="w-12 h-16 object-cover rounded"
+                      loading="lazy"
                     />
                   </div>
                 </div>

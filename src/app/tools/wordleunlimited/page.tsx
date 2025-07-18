@@ -74,11 +74,11 @@ export default function WordleUnlimited() {
     return set.has(string);
   };
 
-  const getRandomPhrase = (phrases: string[]): string => {
-    return phrases[Math.floor(Math.random() * phrases.length)];
-  };
-
   const enterAction = useCallback((userWord: string) => {
+    const getRandomPhrase = (phrases: string[]): string => {
+      return phrases[Math.floor(Math.random() * phrases.length)];
+    };
+
     if (!wordleData) return;
 
     userWord = userWord.toLowerCase();
@@ -261,7 +261,7 @@ export default function WordleUnlimited() {
     } else {
       setMessage(userWord.toUpperCase() + " is not in word list");
     }
-  }, [wordleData, secretWord, gameBoard, currentRow, boardColors, keyColors, setMessage, setGameBoard, setBoardColors, setKeyColors, setCurrentRow, setGameFinished, setCurrentGuess, setSquareAnimations, getRandomPhrase]);
+  }, [wordleData, secretWord, gameBoard, currentRow, boardColors, keyColors, setMessage, setGameBoard, setBoardColors, setKeyColors, setCurrentRow, setGameFinished, setCurrentGuess, setSquareAnimations]);
 
   // Add keyboard event listener
   useEffect(() => {
