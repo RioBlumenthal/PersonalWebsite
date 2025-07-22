@@ -87,6 +87,68 @@ export default function Tools() {
             </div>
           </Link>
 
+          {/* Florr.io Crafting Calculator Card */}
+          <Link href="/tools/florrio-calculator" className="group">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 w-20 h-20 flex items-center justify-center">
+                    <img
+                      src="/tools/FlorrCrafting.png"
+                      alt="Florr.io Crafting"
+                      className="w-12 h-12 object-contain"
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
+                    Florr.io Crafting Calculator
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    Calculate crafting recipes and optimize your Florr.io gameplay with detailed ingredient tracking.
+                  </p>
+                  <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                    <span>Crafting recipes • Ingredient tracking • Game optimization</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* IP Geolocation Card */}
+          <Link href="/tools/ip-geolocation" className="group">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 w-20 h-20 flex items-center justify-center">
+                    <div className="relative">
+                      {/* Globe icon */}
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-green-500 rounded-full flex items-center justify-center">
+                        <div className="text-white text-lg">🌍</div>
+                      </div>
+                      {/* Location pin */}
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                        <span className="text-xs font-bold text-white">📍</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
+                    IP Geolocation
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    View detailed information about your IP address including location, ISP, and network details.
+                  </p>
+                  <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                    <span>Real-time data • Location details • Network info</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+
           {/* QR Code Generator Card */}
           <Link href="/tools/qrgenerator" className="group">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
