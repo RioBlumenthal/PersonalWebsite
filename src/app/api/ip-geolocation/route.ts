@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     // Get the client's IP address
     const forwarded = request.headers.get('x-forwarded-for');
     const real = request.headers.get('x-real-ip');
-    let ip = forwarded ? forwarded.split(',')[0] : real || '';
+    const ip = forwarded ? forwarded.split(',')[0] : real || '';
 
     console.log('IP Detection Debug:', {
       forwarded,

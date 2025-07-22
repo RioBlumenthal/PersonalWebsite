@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 interface CardData {
   name: string;
@@ -251,11 +252,12 @@ export default function MTGGuesser() {
             {/* Card Artwork */}
             <div className="flex justify-center mb-8">
               <div className="relative">
-                <img
+                <Image
                   src={cardData.image_uris?.art_crop || ''}
                   alt="Card artwork"
+                  width={400}
+                  height={300}
                   className="rounded-lg shadow-lg max-w-sm w-full"
-                  loading="lazy"
                 />
                 <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
                   {cardData.rarity}

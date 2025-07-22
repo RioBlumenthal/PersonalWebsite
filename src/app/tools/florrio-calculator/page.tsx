@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useState } from "react";
+import Image from "next/image";
 
 export default function FlorrioCalculator() {
   const [petals, setPetals] = useState("");
@@ -58,11 +59,12 @@ export default function FlorrioCalculator() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700">
             <div className="text-center mb-8">
               <div className="relative inline-block">
-                <img
+                <Image
                   src="/tools/FlorrCrafting.png"
                   alt="Florr.io Crafting"
-                  className="w-56 h-auto max-h-56 object-contain mb-4 rounded-lg border-2 border-gray-200 dark:border-gray-600 shadow-md"
-                  loading="lazy"
+                  width={224}
+                  height={224}
+                  className="object-contain mb-4 rounded-lg border-2 border-gray-200 dark:border-gray-600 shadow-md"
                 />
               </div>
             </div>
