@@ -19,6 +19,48 @@ interface CardData {
   set_name: string;
 }
 
+// Levenshtein distance function for fuzzy string matching
+function levenshteinDistance(str1: string, str2: string): number {
+  const matrix = [];
+  
+  for (let i = 0; i <= str2.length; i++) {
+    matrix[i] = [i];
+  }
+  
+  for (let j = 0; j <= str1.length; j++) {
+    matrix[0][j] = j;
+  }
+  
+  for (let i = 1; i <= str2.length; i++) {
+    for (let j = 1; j <= str1.length; j++) {
+      if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          matrix[i][j - 1] + 1,     // insertion
+          matrix[i - 1][j] + 1      // deletion
+        );
+      }
+    }
+  }
+  
+  return matrix[str2.length][str1.length];
+}
+
+// Calculate adaptive threshold based on card name length
+function getAdaptiveThreshold(cardName: string): { correct: number; close: number } {
+  const length = cardName.length;
+  
+  if (length <= 6) {
+    return { correct: 1, close: 2 };
+  } else if (length <= 12) {
+    return { correct: 2, close: 3 };
+  } else {
+    return { correct: 3, close: 4 };
+  }
+}
+
 export default function MTGGuesser() {
   const [cardData, setCardData] = useState<CardData | null>(null);
   const [userGuess, setUserGuess] = useState("");
@@ -31,6 +73,7 @@ export default function MTGGuesser() {
   const [guessCount, setGuessCount] = useState(0);
   const [gameFinished, setGameFinished] = useState(false);
   const [showIncorrectMessage, setShowIncorrectMessage] = useState(false);
+  const [showCloseGuessMessage, setShowCloseGuessMessage] = useState(false);
 
   const fetchRandomCard = useCallback(async () => {
     setIsLoading(true);
@@ -42,6 +85,7 @@ export default function MTGGuesser() {
     setGuessCount(0);
     setGameFinished(false);
     setShowIncorrectMessage(false);
+    setShowCloseGuessMessage(false);
     
     let attempts = 0;
     const maxAttempts = 10;
@@ -92,18 +136,30 @@ export default function MTGGuesser() {
     const normalizedGuess = userGuess.trim().toLowerCase().replace(/[^\w\s]/g, '');
     const normalizedCardName = cardData.name.toLowerCase().replace(/[^\w\s]/g, '');
     
-    const isGuessCorrect = normalizedGuess === normalizedCardName;
+    // Calculate Levenshtein distance for fuzzy matching
+    const distance = levenshteinDistance(normalizedGuess, normalizedCardName);
+    const thresholds = getAdaptiveThreshold(normalizedCardName);
+    
+    const isGuessCorrect = distance <= thresholds.correct;
+    const isCloseGuess = distance <= thresholds.close && distance > thresholds.correct;
+    
     const newGuessCount = guessCount + 1;
     setGuessCount(newGuessCount);
-    
+        
     if (isGuessCorrect) {
       setScore(prev => ({ correct: prev.correct + 1, total: prev.total + 1 }));
       setGameFinished(true);
       setIsCorrect(true);
+      setShowCloseGuessMessage(false);
+      setShowIncorrectMessage(false);
     } else {
-      // Show incorrect message (but not on the last guess)
-      if (newGuessCount < 4) {
+      // Show appropriate message based on how close the guess was
+      if (isCloseGuess) {
+        setShowCloseGuessMessage(true);
+        setShowIncorrectMessage(false);
+      } else {
         setShowIncorrectMessage(true);
+        setShowCloseGuessMessage(false);
       }
       
       // Give hints after each incorrect guess
@@ -121,9 +177,12 @@ export default function MTGGuesser() {
         setIsCorrect(false);
         setScore(prev => ({ ...prev, total: prev.total + 1 })); // Only count as loss after 4th guess
       } else {
-        // Reset for next guess and hide incorrect message after a delay
+        // Reset for next guess and hide messages after a delay
         setUserGuess("");
-        setTimeout(() => setShowIncorrectMessage(false), 2000); // Hide after 2 seconds
+        setTimeout(() => {
+          setShowIncorrectMessage(false);
+          setShowCloseGuessMessage(false);
+        }, 3000); // Hide after 3 seconds
       }
     }
   };
@@ -313,6 +372,20 @@ export default function MTGGuesser() {
               >
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-center">
                   <p className="font-medium">Incorrect</p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Close Guess Message */}
+            {showCloseGuessMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="max-w-md mx-auto mb-4"
+              >
+                <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-2 rounded text-center">
+                  <p className="font-medium">Close Guess! 🔥</p>
                 </div>
               </motion.div>
             )}
