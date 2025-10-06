@@ -292,7 +292,6 @@ const TangoGame: React.FC = () => {
 
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>Click cells to cycle through: empty → O → X → empty</p>
-          <p className="mt-1">Wrong symbols will be highlighted with ✗ after 1 second</p>
         </div>
 
         <div className="mt-6 text-center">
