@@ -51,9 +51,7 @@ export default function Games() {
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                     Play unlimited games of Wordle with AI-powered hints and custom feedback.
                   </p>
-                  <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                    <span>Unlimited games • AI hints • Responsive</span>
-                  </div>
+                  
                 </div>
               </div>
             </div>
@@ -81,9 +79,37 @@ export default function Games() {
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                     Guess Magic: The Gathering cards based on progressively revealed information.
                   </p>
-                  <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                    <span>Progressive hints • Card database • Multiple formats</span>
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* Binairo Card */}
+          <Link href="/games/tango" className="group">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 w-20 h-20 flex items-center justify-center">
+                    <div className="grid grid-cols-3 gap-1">
+                      {Array(9).fill(null).map((_, i) => (
+                        <div key={i} className={`w-4 h-4 border border-gray-300 flex items-center justify-center text-xs font-bold ${
+                          i % 4 === 0 ? 'bg-red-100 text-red-700' : 
+                          i % 3 === 1 ? 'bg-blue-100 text-blue-700' : 
+                          'bg-gray-100'
+                        }`}>
+                          {i % 4 === 0 ? '0' : i % 3 === 1 ? '1' : ''}
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
+                    Binairo
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    Fill the 6x6 grid with 0s and 1s following Tango rules.
+                  </p>
                 </div>
               </div>
             </div>

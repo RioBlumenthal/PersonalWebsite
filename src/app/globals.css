@@ -456,3 +456,19 @@ body {
 .project-link {
   @apply block text-gray-900 dark:text-white no-underline;
 }
+
+/* Slide down animation for popup */
+@keyframes slide-down {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.4s ease-out;
+}
