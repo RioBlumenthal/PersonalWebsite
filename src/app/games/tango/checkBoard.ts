@@ -56,7 +56,7 @@ export function isInvalid(grid: Grid): boolean {
 }
 
 /**
- * Check if a value can be placed at a specific position without violating rules
+ * Check that there's no 3 in a row
  */
 export function canPlace(grid: Grid, row: number, col: number, value: CellValue): boolean {
   if (value === null) return true;
@@ -108,20 +108,6 @@ export function isCompleteAndValid(grid: Grid): boolean {
   // Check if the board is valid (no violations)
   if (isInvalid(grid)) {
     return false;
-  }
-  
-  // Check that each row and column has exactly 3 of each type
-  for (let i = 0; i < size; i++) {
-    const rowCounts = { 0: 0, 1: 0 };
-    const colCounts = { 0: 0, 1: 0 };
-    
-    for (let j = 0; j < size; j++) {
-      rowCounts[grid[i][j]!]++;
-      colCounts[grid[j][i]!]++;
-    }
-    
-    if (rowCounts[0] !== 3 || rowCounts[1] !== 3) return false;
-    if (colCounts[0] !== 3 || colCounts[1] !== 3) return false;
   }
   
   return true;
