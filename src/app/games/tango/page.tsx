@@ -63,16 +63,10 @@ const TangoGame: React.FC = () => {
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">Tango</h1>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600">
             Fill the grid with 0s and 1s. Each row and column must have exactly 3 of each type, 
             and no three identical numbers can be adjacent.
           </p>
-          <button
-            onClick={handleNewGame}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
-          >
-            New Game
-          </button>
         </div>
 
         {showPopup && (
@@ -123,15 +117,15 @@ const TangoGame: React.FC = () => {
           </>
         )}
 
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="grid grid-cols-6 gap-2 max-w-md mx-auto">
+        <div className="bg-white rounded-lg shadow-lg p-6 w-fit mx-auto">
+          <div className="w-80 h-80 grid grid-cols-6 grid-rows-6 gap-2">
             {grid.map((row, rowIndex) =>
               row.map((cell, colIndex) => (
                 <button
                   key={`${rowIndex}-${colIndex}`}
                   onClick={() => handleCellClick(rowIndex, colIndex)}
                   className={`
-                    w-12 h-12 border-2 rounded-lg font-bold text-lg transition-all duration-200
+                    aspect-square border-2 rounded-lg font-bold text-lg transition-all duration-200
                     ${cell === null 
                       ? 'bg-gray-100 border-gray-300 hover:bg-gray-200' 
                       : cell === 0 
@@ -150,6 +144,15 @@ const TangoGame: React.FC = () => {
 
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>Click cells to cycle through: empty → 0 → 1 → empty</p>
+        </div>
+
+        <div className="mt-6 text-center">
+          <button
+            onClick={handleNewGame}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+          >
+            New Game
+          </button>
         </div>
       </div>
     </div>
