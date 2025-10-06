@@ -2,7 +2,6 @@ export type CellValue = 0 | 1 | null;
 export type Grid = CellValue[][];
 
 /**
- * Optimized validation function based on the provided C++ approach
  * Checks if the current board state is invalid (has violations)
  */
 export function isInvalid(grid: Grid): boolean {
@@ -10,8 +9,8 @@ export function isInvalid(grid: Grid): boolean {
   
   // Helper function to check linear constraints (rows or columns)
   const checkLinear = (isRow: boolean): boolean => {
-    const major = isRow ? size : size;
-    const minor = isRow ? size : size;
+    const major = size;
+    const minor = size;
     
     for (let y = 0; y < major; ++y) {
       let recent1 = 0;
@@ -89,50 +88,6 @@ export function canPlace(grid: Grid, row: number, col: number, value: CellValue)
   if (count >= 3) return false;
   
   return true;
-}
-
-/**
- * Solve a Tango board using backtracking
- * Returns true if a solution is found, false otherwise
- */
-export function solveBoard(grid: Grid): boolean {
-  const size = grid.length;
-  
-  // Find the next empty cell
-  let emptyRow = -1;
-  let emptyCol = -1;
-  
-  for (let i = 0; i < size; i++) {
-    for (let j = 0; j < size; j++) {
-      if (grid[i][j] === null) {
-        emptyRow = i;
-        emptyCol = j;
-        break;
-      }
-    }
-    if (emptyRow !== -1) break;
-  }
-  
-  // If no empty cell found, check if the board is valid
-  if (emptyRow === -1) {
-    return !isInvalid(grid);
-  }
-  
-  // Try placing 0 and 1
-  for (const value of [0, 1] as const) {
-    if (canPlace(grid, emptyRow, emptyCol, value)) {
-      grid[emptyRow][emptyCol] = value;
-      
-      if (solveBoard(grid)) {
-        return true;
-      }
-      
-      // Backtrack
-      grid[emptyRow][emptyCol] = null;
-    }
-  }
-  
-  return false;
 }
 
 /**
