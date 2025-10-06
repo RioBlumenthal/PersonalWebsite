@@ -189,11 +189,11 @@ const TangoGame: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-2 sm:p-4">
       <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Tango</h1>
-          <p className="text-gray-600">
+        <div className="text-center mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">Tango</h1>
+          <p className="text-sm sm:text-base text-gray-600 px-2">
             Fill the grid with X&apos;s and O&apos;s. Each row and column must have exactly 3 of each type, 
             and no three identical symbols can be adjacent.
           </p>
@@ -208,14 +208,14 @@ const TangoGame: React.FC = () => {
             />
             
             {/* Popup */}
-            <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+            <div className="fixed inset-0 flex items-center justify-center z-50 p-2 sm:p-4">
               <div className="bg-white rounded-lg shadow-2xl border-4 border-green-500 max-w-md w-full animate-slide-down">
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   {/* Header with close button */}
                   <div className="relative mb-4">
                     <div className="flex flex-col items-center">
-                      <h2 className="text-2xl font-bold text-green-600 mb-2">Congratulations!</h2>
-                      <p className="text-gray-700">You solved the Tango puzzle!</p>
+                      <h2 className="text-xl sm:text-2xl font-bold text-green-600 mb-2">Congratulations!</h2>
+                      <p className="text-sm sm:text-base text-gray-700">You solved the Tango puzzle!</p>
                     </div>
                     <button
                       onClick={handleClosePopup}
@@ -247,8 +247,8 @@ const TangoGame: React.FC = () => {
           </>
         )}
 
-        <div className="bg-white rounded-lg shadow-lg p-6 w-fit mx-auto">
-          <div className="w-80 h-80 grid grid-cols-6 grid-rows-6">
+        <div className="bg-white rounded-lg shadow-lg p-2 sm:p-6 w-fit mx-auto">
+          <div className="w-64 h-64 sm:w-80 sm:h-80 grid grid-cols-6 grid-rows-6">
             {grid.map((row, rowIndex) =>
               row.map((cell, colIndex) => {
                 const isPrefilled = prefilledCells[rowIndex]?.[colIndex];
@@ -259,7 +259,7 @@ const TangoGame: React.FC = () => {
                     key={`${rowIndex}-${colIndex}`}
                     onClick={() => handleCellClick(rowIndex, colIndex)}
                     className={`
-                      aspect-square border font-bold text-lg transition-all duration-200 relative
+                      aspect-square border font-bold text-sm sm:text-lg transition-all duration-200 relative
                       ${cell === null 
                         ? 'bg-white border-gray-300 hover:bg-gray-50' 
                         : isPrefilled
@@ -280,7 +280,7 @@ const TangoGame: React.FC = () => {
                     ) : null}
                     {isError && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="text-red-500 text-4xl font-bold opacity-60">X</div>
+                        <div className="text-red-500 text-2xl sm:text-4xl font-bold opacity-60">X</div>
                       </div>
                     )}
                   </button>
@@ -290,21 +290,21 @@ const TangoGame: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-6 text-center text-sm text-gray-600">
+        <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-gray-600 px-2">
           <p>Click cells to cycle through: empty → O → X → empty</p>
         </div>
 
-        <div className="mt-6 text-center">
-          <div className="flex gap-4 justify-center">
+        <div className="mt-4 sm:mt-6 text-center">
+          <div className="flex gap-2 sm:gap-4 justify-center">
             <button
               onClick={handleHint}
-              className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2"
+              className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 text-sm sm:text-base"
             >
               Hint
             </button>
             <button
               onClick={handleNewGame}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold transition-colors text-sm sm:text-base"
             >
               New Game
             </button>
