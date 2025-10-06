@@ -92,7 +92,7 @@ export function canPlace(grid: Grid, row: number, col: number, value: CellValue)
 }
 
 /**
- * Solve a Binairo board using backtracking
+ * Solve a Tango board using backtracking
  * Returns true if a solution is found, false otherwise
  */
 export function solveBoard(grid: Grid): boolean {

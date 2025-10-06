@@ -84,7 +84,7 @@ export default function Games() {
             </div>
           </Link>
 
-          {/* Binairo Card */}
+          {/* Tango Card */}
           <Link href="/games/tango" className="group">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
               <div className="flex items-start space-x-4">
@@ -105,7 +105,7 @@ export default function Games() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
-                    Binairo
+                    Tango
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                     Fill the 6x6 grid with 0s and 1s following Tango rules.

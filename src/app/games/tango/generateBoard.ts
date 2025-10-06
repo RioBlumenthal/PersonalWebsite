@@ -1,7 +1,7 @@
 import { CellValue, Grid, solveBoard } from './solveBoard';
 
 /**
- * Generate a complete valid Binairo solution
+ * Generate a complete valid Tango solution
  */
 export function generateCompleteSolution(size: number = 6): Grid {
   const grid: Grid = Array(size).fill(null).map(() => Array(size).fill(null));
@@ -52,7 +52,7 @@ export function removeCellsFromSolution(solution: Grid, cellsToRemove: number): 
 }
 
 /**
- * Generate a Binairo puzzle with a guaranteed solution
+ * Generate a Tango puzzle with a guaranteed solution
  */
 export function generateBoard(size: number = 6, difficulty: 'easy' | 'medium' | 'hard' = 'medium'): Grid {
   // First generate a complete solution
