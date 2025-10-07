@@ -188,6 +188,12 @@ const TangoGame: React.FC = () => {
     }
   };
 
+  // Function to get the relationship indicator between two cells
+  const getCellRelationship = (cell1: number | null, cell2: number | null): string => {
+    if (cell1 === null || cell2 === null) return '';
+    return cell1 === cell2 ? '=' : 'x';
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-2 sm:p-4">
       <div className="max-w-2xl mx-auto">
@@ -247,8 +253,8 @@ const TangoGame: React.FC = () => {
           </>
         )}
 
-        <div className="bg-white rounded-lg shadow-lg p-2 sm:p-6 w-fit mx-auto">
-          <div className="w-64 h-64 sm:w-80 sm:h-80 grid grid-cols-6 grid-rows-6">
+        <div className="bg-white rounded-lg shadow-lg p-2 sm:p-6 w-fit mx-auto relative">
+          <div className="w-64 h-64 sm:w-80 sm:h-80 grid grid-cols-6 grid-rows-6 relative">
             {grid.map((row, rowIndex) =>
               row.map((cell, colIndex) => {
                 const isPrefilled = prefilledCells[rowIndex]?.[colIndex];
@@ -276,7 +282,7 @@ const TangoGame: React.FC = () => {
                     {cell === 0 ? (
                       <span className={`font-bold ${isHint ? 'text-orange-600' : 'text-red-600'}`}>O</span>
                     ) : cell === 1 ? (
-                      <span className={`font-bold ${isHint ? 'text-orange-600' : 'text-blue-600'}`}>X</span>
+                      <span className={`font-bold ${isHint ? 'text-orange-600' : 'text-blue-600'}`}>▲</span>
                     ) : null}
                     {isError && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -284,6 +290,52 @@ const TangoGame: React.FC = () => {
                       </div>
                     )}
                   </button>
+                );
+              })
+            )}
+            
+            {/* Horizontal indicators between cells */}
+            {grid.map((row, rowIndex) =>
+              row.slice(0, -1).map((_, colIndex) => {
+                const leftCell = grid[rowIndex][colIndex];
+                const rightCell = grid[rowIndex][colIndex + 1];
+                const indicator = getCellRelationship(leftCell, rightCell);
+                
+                return (
+                  <div
+                    key={`h-${rowIndex}-${colIndex}`}
+                    className="absolute flex items-center justify-center text-gray-600 font-bold text-xs sm:text-sm pointer-events-none"
+                    style={{
+                      left: `${(colIndex + 1) * (100 / 6)}%`,
+                      top: `${(rowIndex + 0.5) * (100 / 6)}%`,
+                      transform: 'translate(-50%, -50%)'
+                    }}
+                  >
+                    {indicator}
+                  </div>
+                );
+              })
+            )}
+            
+            {/* Vertical indicators between cells */}
+            {grid.slice(0, -1).map((row, rowIndex) =>
+              row.map((_, colIndex) => {
+                const topCell = grid[rowIndex][colIndex];
+                const bottomCell = grid[rowIndex + 1][colIndex];
+                const indicator = getCellRelationship(topCell, bottomCell);
+                
+                return (
+                  <div
+                    key={`v-${rowIndex}-${colIndex}`}
+                    className="absolute flex items-center justify-center text-gray-600 font-bold text-xs sm:text-sm pointer-events-none"
+                    style={{
+                      left: `${(colIndex + 0.5) * (100 / 6)}%`,
+                      top: `${(rowIndex + 1) * (100 / 6)}%`,
+                      transform: 'translate(-50%, -50%)'
+                    }}
+                  >
+                    {indicator}
+                  </div>
                 );
               })
             )}
