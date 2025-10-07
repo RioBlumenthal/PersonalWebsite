@@ -280,9 +280,9 @@ const TangoGame: React.FC = () => {
                     `}
                   >
                     {cell === 0 ? (
-                      <span className={`font-bold ${isHint ? 'text-orange-600' : 'text-red-600'}`}>O</span>
+                      <span className={`font-bold ${isHint ? 'text-orange-600' : 'text-yellow-500'}`}>⬤</span>
                     ) : cell === 1 ? (
-                      <span className={`font-bold ${isHint ? 'text-orange-600' : 'text-blue-600'}`}>▲</span>
+                      <span className={`font-bold text-lg ${isHint ? 'text-orange-600' : 'text-blue-600'}`}>★</span>
                     ) : null}
                     {isError && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
