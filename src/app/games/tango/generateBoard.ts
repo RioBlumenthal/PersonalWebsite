@@ -23,64 +23,30 @@ export function generateCompleteSolution(size: number = 6): { grid: Grid, connec
   generateWithTreePruning(grid, positions, 0);
   
   const { connectionsVertical, connectionsHorizontal } = generateConnections(grid);
+  
   return { grid, connectionsVertical, connectionsHorizontal };
 }
 
 export function generateConnections(grid: Grid): { connectionsVertical: Grid, connectionsHorizontal: Grid } {
   const size = grid.length;
 
-  const checkLinear = (isRow: boolean): Grid => {
-    const connections: Grid = Array(isRow ? size : size-1).fill(null).map(() => Array(isRow ? size-1 : size).fill(null));
+  const connectionsHorizontal: Grid = Array(size).fill(null).map(() => Array(size - 1).fill(null));
+  const connectionsVertical: Grid = Array(size - 1).fill(null).map(() => Array(size).fill(null));
 
-    
-    for (let y = 0; y < (isRow ? size : size-1); ++y) {
-      for (let x = 0; x < (isRow ? size-1 : size); ++x) {
-        const val = isRow ? grid[y][x] : grid[x][y];
-
-        if (isRow) {
-          // check right
-          if (x < size-1) { 
-            if (grid[y][x+1] === val) { 
-              connections[y][x] = 1;
-            } else if (grid[y][x+1] !== val) { 
-              connections[y][x] = 0;
-            }
-          }
-
-          // check left
-          if (x > 0) { 
-            if (grid[y][x-1] === val) { 
-              connections[y][x] = 1;
-            } else if (grid[y][x-1] !== val) { 
-              connections[y][x] = 0;
-            }
-          }
-        }
-        else {
-          // check up
-          if (y > 0) { 
-            if (grid[y-1][x] === val) { 
-              connections[y][x] = 1;
-            } else if (grid[y-1][x] !== val) { 
-              connections[y][x] = 0;
-            }
-          }
-
-          // check down
-          if (y < size-1) { 
-            if (grid[y+1][x] === val) { 
-              connections[y][x] = 1;
-            } else if (grid[y+1][x] !== val) { 
-              connections[y][x] = 0; 
-            }
-          }
-        }
-      }
+  // Horizontal connections: compare (y, x) with (y, x+1)
+  for (let y = 0; y < size; ++y) {
+    for (let x = 0; x < size - 1; ++x) {
+      connectionsHorizontal[y][x] = grid[y][x] === grid[y][x + 1] ? 1 : 0;
     }
-    return connections;
   }
-  const connectionsHorizontal: Grid = checkLinear(true);
-  const connectionsVertical: Grid = checkLinear(false);
+
+  // Vertical connections: compare (y, x) with (y+1, x)
+  for (let y = 0; y < size - 1; ++y) {
+    for (let x = 0; x < size; ++x) {
+      connectionsVertical[y][x] = grid[y][x] === grid[y + 1][x] ? 1 : 0;
+    }
+  }
+
   return { connectionsVertical, connectionsHorizontal };
 }
 
@@ -164,55 +130,91 @@ function countSolutions(grid: Grid, connectionsVertical: Grid, connectionsHorizo
 /**
  * Remove cells from a complete solution to create a puzzle with exactly one solution
  */
-export function removeCellsFromSolution(solution: Grid, connectionsVertical: Grid, connectionsHorizontal: Grid, cellsToRemove: number): { puzzle: Grid, connectionsVerticalPuzzle: Grid, connectionsHorizontalPuzzle: Grid } {
+export function removeCellsFromSolution(solution: Grid, connectionsVertical: Grid, connectionsHorizontal: Grid): { puzzle: Grid, connectionsVerticalPuzzle: Grid, connectionsHorizontalPuzzle: Grid } {
   const size = solution.length;
   const puzzle = solution.map(row => [...row]); // Deep copy
   const connectionsVerticalPuzzle = connectionsVertical.map(row => [...row]);
   const connectionsHorizontalPuzzle = connectionsHorizontal.map(row => [...row]);
-  
-  // Create array of all positions
-  const positions: [number, number][] = [];
-  for (let i = 0; i < size; i++) {
-    for (let j = 0; j < size; j++) {
-      positions.push([i, j]);
+
+  // Build a single randomized stream of candidates (cells + connections)
+  type Candidate =
+    | { kind: 'cell'; row: number; col: number }
+    | { kind: 'h'; row: number; col: number }
+    | { kind: 'v'; row: number; col: number };
+
+  const candidates: Candidate[] = [];
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      candidates.push({ kind: 'cell', row: y, col: x });
     }
   }
-  
-  // Shuffle positions using Fisher-Yates algorithm
-  for (let i = positions.length - 1; i > 0; i--) {
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size - 1; x++) {
+      candidates.push({ kind: 'h', row: y, col: x });
+    }
+  }
+  for (let y = 0; y < size - 1; y++) {
+    for (let x = 0; x < size; x++) {
+      candidates.push({ kind: 'v', row: y, col: x });
+    }
+  }
+
+  // Shuffle candidates using Fisher-Yates algorithm
+  for (let i = candidates.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [positions[i], positions[j]] = [positions[j], positions[i]];
+    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
   }
-  
-  // Remove cells one by one, ensuring uniqueness
-  let removedCount = 0;
-  for (const [row, col] of positions) {
-    if (removedCount >= cellsToRemove) break;
-    
-    // Store the original value
-    const originalValue = puzzle[row][col];
-    
-    // Remove the cell
-    puzzle[row][col] = null;
-    
-    // Check if the puzzle still has exactly one solution
-    const solutions = countSolutions(puzzle, connectionsVertical, connectionsHorizontal);
-    
-    if (solutions === 1) {
-      removedCount++;
+
+  // Enforce quotas: many cells, few connections; but choose targets in random order
+  let removedCellsCount = 0;
+  let removedConnectionsCount = 0;
+
+  for (const c of candidates) {
+    if (c.kind === 'cell') {
+      const { row, col } = c;
+      const original = puzzle[row][col];
+      if (original === null) continue;
+      puzzle[row][col] = null;
+      const solutions = countSolutions(puzzle, connectionsVerticalPuzzle, connectionsHorizontalPuzzle);
+      if (solutions === 1) {
+        removedCellsCount++;
+      } else {
+        puzzle[row][col] = original;
+      }
+    } else if (c.kind === 'h') {
+      const { row, col } = c;
+      const original = connectionsHorizontalPuzzle[row][col];
+      if (original === null) continue;
+      connectionsHorizontalPuzzle[row][col] = null;
+      const solutions = countSolutions(puzzle, connectionsVerticalPuzzle, connectionsHorizontalPuzzle);
+      if (solutions === 1) {
+        removedConnectionsCount++;
+      } else {
+        connectionsHorizontalPuzzle[row][col] = original;
+      }
     } else {
-      // Restore the cell if removing it breaks uniqueness
-      puzzle[row][col] = originalValue;
+      const { row, col } = c;
+      const original = connectionsVerticalPuzzle[row][col];
+      if (original === null) continue;
+      connectionsVerticalPuzzle[row][col] = null;
+      const solutions = countSolutions(puzzle, connectionsVerticalPuzzle, connectionsHorizontalPuzzle);
+      if (solutions === 1) {
+        removedConnectionsCount++;
+      } else {
+        connectionsVerticalPuzzle[row][col] = original;
+      }
     }
   }
-  
+  console.log("removedCellsCount", removedCellsCount);
+  console.log("removedConnectionsCount", removedConnectionsCount);
+
   return { puzzle, connectionsVerticalPuzzle, connectionsHorizontalPuzzle };
 }
 
 /**
  * Generate a board with its complete solution for hint functionality
  */
-export function generateOptimalBoardWithSolution(size: number = 6, attempts: number = 5): { puzzle: Grid; connectionsVerticalPuzzle: Grid; connectionsHorizontalPuzzle: Grid; solution: Grid; } {
+export function generateOptimalBoardWithSolution(size: number = 6, attempts: number = 1): { puzzle: Grid; connectionsVerticalPuzzle: Grid; connectionsHorizontalPuzzle: Grid; solution: Grid; } {
   let bestBoard: { puzzle: Grid, connectionsVerticalPuzzle: Grid, connectionsHorizontalPuzzle: Grid } | null = null;
   let bestSolution: Grid | null = null;
   let mostEmptyCells = -1;
@@ -222,7 +224,7 @@ export function generateOptimalBoardWithSolution(size: number = 6, attempts: num
     const { grid, connectionsVertical, connectionsHorizontal } = generateCompleteSolution(size);
     
     // Then create a puzzle from it
-    const { puzzle, connectionsVerticalPuzzle, connectionsHorizontalPuzzle } = removeCellsFromSolution(grid, connectionsVertical, connectionsHorizontal, Math.floor(size * size * 0.5));
+    const { puzzle, connectionsVerticalPuzzle, connectionsHorizontalPuzzle } = removeCellsFromSolution(grid, connectionsVertical, connectionsHorizontal);
     
     const emptyCells = puzzle.flat().filter(cell => cell === null).length;
         
@@ -232,7 +234,7 @@ export function generateOptimalBoardWithSolution(size: number = 6, attempts: num
       bestSolution = grid;
     }
   }
-  
+  console.log(bestBoard);
   return {
     puzzle: bestBoard?.puzzle || Array(size).fill(null).map(() => Array(size).fill(null)),
     connectionsVerticalPuzzle: bestBoard?.connectionsVerticalPuzzle || Array(size-1).fill(null).map(() => Array(size).fill(null)),

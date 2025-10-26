@@ -6,6 +6,8 @@ import { generateOptimalBoardWithSolution } from './generateBoard';
 
 const TangoGame: React.FC = () => {
   const [grid, setGrid] = useState<Grid>([]);
+  const [connectionsVertical, setConnectionsVertical] = useState<Grid>([]);
+  const [connectionsHorizontal, setConnectionsHorizontal] = useState<Grid>([]);
   const [prefilledCells, setPrefilledCells] = useState<boolean[][]>([]);
   const [hintCells, setHintCells] = useState<boolean[][]>([]);
   const [errorCells, setErrorCells] = useState<boolean[][]>([]);
@@ -16,9 +18,11 @@ const TangoGame: React.FC = () => {
 
   // Initialize the game
   useEffect(() => {
-    const { puzzle, solution: completeSolution } = generateOptimalBoardWithSolution();
+    const { puzzle, solution: completeSolution, connectionsVerticalPuzzle, connectionsHorizontalPuzzle } = generateOptimalBoardWithSolution();
     setGrid(puzzle);
     setSolution(completeSolution);
+    setConnectionsVertical(connectionsVerticalPuzzle);
+    setConnectionsHorizontal(connectionsHorizontalPuzzle);
     
     // Track which cells are prefilled (not null)
     const prefilled = puzzle.map(row => 
@@ -110,9 +114,11 @@ const TangoGame: React.FC = () => {
 
   // Generate new board
   const handleNewGame = () => {
-    const { puzzle, solution: completeSolution } = generateOptimalBoardWithSolution();
+    const { puzzle, solution: completeSolution, connectionsVerticalPuzzle, connectionsHorizontalPuzzle } = generateOptimalBoardWithSolution();
     setGrid(puzzle);
     setSolution(completeSolution);
+    setConnectionsVertical(connectionsVerticalPuzzle);
+    setConnectionsHorizontal(connectionsHorizontalPuzzle);
     
     // Track which cells are prefilled (not null)
     const prefilled = puzzle.map(row => 
@@ -186,12 +192,6 @@ const TangoGame: React.FC = () => {
       setIsComplete(true);
       setShowPopup(true);
     }
-  };
-
-  // Function to get the relationship indicator between two cells
-  const getCellRelationship = (cell1: number | null, cell2: number | null): string => {
-    if (cell1 === null || cell2 === null) return '';
-    return cell1 === cell2 ? '=' : 'x';
   };
 
   return (
@@ -294,13 +294,11 @@ const TangoGame: React.FC = () => {
               })
             )}
             
-            {/* Horizontal indicators between cells */}
+            {/* Horizontal indicators between cells (from puzzle connections) */}
             {grid.map((row, rowIndex) =>
               row.slice(0, -1).map((_, colIndex) => {
-                const leftCell = grid[rowIndex][colIndex];
-                const rightCell = grid[rowIndex][colIndex + 1];
-                const indicator = getCellRelationship(leftCell, rightCell);
-                
+                const conn = connectionsHorizontal?.[rowIndex]?.[colIndex];
+                const indicator = conn === null || conn === undefined ? '' : (conn === 1 ? '=' : 'x');
                 return (
                   <div
                     key={`h-${rowIndex}-${colIndex}`}
@@ -317,13 +315,11 @@ const TangoGame: React.FC = () => {
               })
             )}
             
-            {/* Vertical indicators between cells */}
+            {/* Vertical indicators between cells (from puzzle connections) */}
             {grid.slice(0, -1).map((row, rowIndex) =>
               row.map((_, colIndex) => {
-                const topCell = grid[rowIndex][colIndex];
-                const bottomCell = grid[rowIndex + 1][colIndex];
-                const indicator = getCellRelationship(topCell, bottomCell);
-                
+                const conn = connectionsVertical?.[rowIndex]?.[colIndex];
+                const indicator = conn === null || conn === undefined ? '' : (conn === 1 ? '=' : 'x');
                 return (
                   <div
                     key={`v-${rowIndex}-${colIndex}`}

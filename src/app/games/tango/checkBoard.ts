@@ -42,40 +42,41 @@ export function isInvalid(grid: Grid, connectionsVertical?: Grid, connectionsHor
         if (connectionsHorizontal && connectionsVertical) {
         if (isRow) {
           // check right
-          if (x < size-1) { 
-            if (connectionsHorizontal[y][x] === 1 && grid[y][x+1] === val) { 
-              return false; 
-            } else if (connectionsHorizontal[y][x] === 0 && grid[y][x+1] !== val) { 
-              return false; 
+          if (x < size-1 && grid[y][x+1] !== null) { 
+            if (connectionsHorizontal[y][x] === 1 && grid[y][x+1] !== val) { 
+              return true; 
+            } else if (connectionsHorizontal[y][x] === 0 && grid[y][x+1] === val) { 
+              return true; 
             }
           }
 
           // check left
-          if (x > 0) { 
-            if (connectionsHorizontal[y][x-1] === 1 && grid[y][x-1] === val) { 
-              return false; 
-            } else if (connectionsHorizontal[y][x-1] === 0 && grid[y][x-1] !== val) { 
-              return false; 
+          if (x > 0 && grid[y][x-1] !== null) { 
+            if (connectionsHorizontal[y][x-1] === 1 && grid[y][x-1] !== val) { 
+              return true; 
+            } else if (connectionsHorizontal[y][x-1] === 0 && grid[y][x-1] === val) { 
+              return true; 
             }
           }
         }
 
         else {
+          // We are scanning a column: current cell is at (row = x, col = y)
           // check up
-          if (y > 0) { 
-            if (connectionsVertical[y-1][x] === 1 && grid[y-1][x] === val) { 
-              return false; 
-            } else if (connectionsVertical[y-1][x] === 0 && grid[y-1][x] !== val) { 
-              return false; 
+          if (x > 0 && grid[x-1][y] !== null) { 
+            if (connectionsVertical[x-1][y] === 1 && grid[x-1][y] !== val) { 
+              return true; 
+            } else if (connectionsVertical[x-1][y] === 0 && grid[x-1][y] === val) { 
+              return true; 
             }
           }
 
           // check down
-          if (y < size-1) { 
-            if (connectionsVertical[y][x] === 1 && grid[y+1][x] === val) { 
-              return false; 
-            } else if (connectionsVertical[y][x] === 0 && grid[y+1][x] !== val) { 
-              return false; 
+          if (x < size-1 && grid[x+1][y] !== null) { 
+            if (connectionsVertical[x][y] === 1 && grid[x+1][y] !== val) { 
+              return true; 
+            } else if (connectionsVertical[x][y] === 0 && grid[x+1][y] === val) { 
+              return true; 
             }
           }
         }
@@ -133,19 +134,19 @@ export function canPlace(grid: Grid, row: number, col: number, value: CellValue,
 
   if (connectionsHorizontal) {
     // check right
-    if (col < size-1) { 
-      if (connectionsHorizontal[row][col] === 1 && grid[row][col+1] === value) { 
+    if (col < size-1 && grid[row][col+1] !== null) { 
+      if (connectionsHorizontal[row][col] === 1 && grid[row][col+1] !== value) { 
         return false; 
-      } else if (connectionsHorizontal[row][col] === 0 && grid[row][col+1] !== value) { 
+      } else if (connectionsHorizontal[row][col] === 0 && grid[row][col+1] === value) { 
         return false; 
       }
     }
 
     // check left
-    if (col > 0) { 
-      if (connectionsHorizontal[row][col-1] === 1 && grid[row][col-1] === value) { 
+    if (col > 0 && grid[row][col-1] !== null) { 
+      if (connectionsHorizontal[row][col-1] === 1 && grid[row][col-1] !== value) { 
         return false; 
-      } else if (connectionsHorizontal[row][col-1] === 0 && grid[row][col-1] !== value) { 
+      } else if (connectionsHorizontal[row][col-1] === 0 && grid[row][col-1] === value) { 
         return false; 
       }
     }
@@ -153,19 +154,19 @@ export function canPlace(grid: Grid, row: number, col: number, value: CellValue,
 
   if (connectionsVertical) {
     // check up
-    if (row > 0) { 
-      if (connectionsVertical[row-1][col] === 1 && grid[row-1][col] === value) { 
+    if (row > 0 && grid[row-1][col] !== null) { 
+      if (connectionsVertical[row-1][col] === 1 && grid[row-1][col] !== value) { 
         return false; 
-      } else if (connectionsVertical[row-1][col] === 0 && grid[row-1][col] !== value) { 
+      } else if (connectionsVertical[row-1][col] === 0 && grid[row-1][col] === value) { 
         return false; 
       }
     }
 
     // check down
-    if (row < size-1) { 
-      if (connectionsVertical[row][col] === 1 && grid[row+1][col] === value) { 
+    if (row < size-1 && grid[row+1][col] !== null) { 
+      if (connectionsVertical[row][col] === 1 && grid[row+1][col] !== value) { 
         return false; 
-      } else if (connectionsVertical[row][col] === 0 && grid[row+1][col] !== value) { 
+      } else if (connectionsVertical[row][col] === 0 && grid[row+1][col] === value) { 
         return false; 
       }
     }
