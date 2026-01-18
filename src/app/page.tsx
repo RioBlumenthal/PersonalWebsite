@@ -102,7 +102,7 @@ Check out my resume and some of my projects, and feel free to reach out to me at
                     Interactive Tools
                   </Link>
                   <a
-                    href="/Resume.pdf"
+                    href="/Rio_Resume.pdf"
                     download
                     className="border border-[#89cff0] text-[#89cff0] hover:bg-[#89cff0] hover:text-[#171717] px-6 py-3 rounded-lg font-medium transition-colors duration-200 dark:border-[#0077b6] dark:text-[#0077b6] dark:hover:bg-[#0077b6] dark:hover:text-[#ededed]"
                   >
