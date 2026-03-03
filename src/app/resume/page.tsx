@@ -134,7 +134,7 @@ export default function Resume() {
     <div className="resume-container">
       <div className="flex justify-center mb-8">
         <a
-          href="/Rio_Resume.pdf"
+          href="/RioBlumenthalResume.pdf"
           download
           className="bg-[#89cff0] hover:bg-[#7bb8d9] text-[#171717] px-6 py-3 rounded-lg font-medium transition-colors duration-200 dark:bg-[#0077b6] dark:hover:bg-[#005a8a] dark:text-[#ededed] inline-flex items-center gap-2"
         >
