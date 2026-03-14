@@ -4,7 +4,7 @@ import ThreeScene from "../../components/ThreeScene";
 
 export default function RenderWindowPage() {
   return (
-    <div className="-m-4 min-h-screen w-[calc(100%+2rem)] bg-black">
+    <div className="-m-4 flex h-full w-[calc(100%+2rem)] flex-col bg-black">
       <ThreeScene />
     </div>
   );
