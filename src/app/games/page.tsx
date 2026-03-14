@@ -21,10 +21,9 @@ export default function Games() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Wordle Unlimited Card */}
           <Link href="/games/wordleunlimited" className="group">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
+            <div className="card card--interactive">
               <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 w-20 h-20 flex items-center justify-center">
+                <div className="card-icon">
                     <div className="grid grid-cols-5 gap-0.5">
                       {Array(5).fill(null).map((_, i) => (
                         <div key={i} className="w-3 h-3 border border-gray-300 flex items-center justify-center text-xs font-bold bg-green-500 text-white">
@@ -42,7 +41,6 @@ export default function Games() {
                         </div>
                       ))}
                     </div>
-                  </div>
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
@@ -59,10 +57,9 @@ export default function Games() {
 
           {/* MTG Guesser Card */}
           <Link href="/games/mtgguesser" className="group">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
+            <div className="card card--interactive">
               <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 w-20 h-20 flex items-center justify-center">
+                <div className="card-icon">
                     <Image
                       src="/tools/mtgguesser/Magic_card_back.webp"
                       alt="MTG Card Back"
@@ -70,7 +67,6 @@ export default function Games() {
                       height={64}
                       className="object-cover rounded"
                     />
-                  </div>
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
@@ -86,10 +82,9 @@ export default function Games() {
 
           {/* Tango Card */}
           <Link href="/games/tango" className="group">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
+            <div className="card card--interactive">
               <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 w-20 h-20 flex items-center justify-center">
+                <div className="card-icon">
                     <div className="grid grid-cols-3 gap-1">
                       {Array(9).fill(null).map((_, i) => (
                         <div key={i} className={`w-4 h-4 border border-gray-300 flex items-center justify-center text-xs font-bold ${
@@ -101,7 +96,6 @@ export default function Games() {
                         </div>
                       ))}
                     </div>
-                  </div>
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">

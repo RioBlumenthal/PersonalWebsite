@@ -67,7 +67,7 @@ export default function QRGenerator() {
           QR Code Generator
         </h1>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700">
+        <div className="card card--spacious">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Input Section */}
             <div>

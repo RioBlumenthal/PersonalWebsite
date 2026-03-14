@@ -56,7 +56,7 @@ export default function FlorrioCalculator() {
 
         <div className="max-w-2xl mx-auto">
           {/* Calculator Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700">
+          <div className="card card--spacious">
             <div className="text-center mb-8">
               <div className="relative inline-block">
                 <Image

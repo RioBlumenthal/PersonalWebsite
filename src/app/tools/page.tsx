@@ -21,10 +21,9 @@ export default function Tools() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Florr.io Crafting Calculator Card */}
           <Link href="/tools/florrio-calculator" className="group">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
+            <div className="card card--interactive">
               <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 w-20 h-20 flex items-center justify-center">
+                <div className="card-icon">
                     <Image
                       src="/tools/FlorrCrafting.png"
                       alt="Florr.io Crafting"
@@ -32,7 +31,6 @@ export default function Tools() {
                       height={48}
                       className="object-contain"
                     />
-                  </div>
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
@@ -51,10 +49,9 @@ export default function Tools() {
 
           {/* IP Geolocation Card */}
           <Link href="/tools/ip-geolocation" className="group">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
+            <div className="card card--interactive">
               <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 w-20 h-20 flex items-center justify-center">
+                <div className="card-icon">
                     <div className="relative">
                       {/* Globe icon */}
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-green-500 rounded-full flex items-center justify-center">
@@ -65,7 +62,6 @@ export default function Tools() {
                         <span className="text-xs font-bold text-white">📍</span>
                       </div>
                     </div>
-                  </div>
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
@@ -84,10 +80,9 @@ export default function Tools() {
 
           {/* QR Code Generator Card */}
           <Link href="/tools/qrgenerator" className="group">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
+            <div className="card card--interactive">
               <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 w-20 h-20 flex items-center justify-center">
+                <div className="card-icon">
                     <div className="grid grid-cols-8 gap-0.5">
                       {Array(64).fill(null).map((_, i) => (
                         <div 
@@ -102,7 +97,6 @@ export default function Tools() {
                         />
                       ))}
                     </div>
-                  </div>
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
@@ -121,10 +115,9 @@ export default function Tools() {
 
           {/* GLTF Viewer Card */}
           <Link href="/tools/gltf-viewer" className="group">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 cursor-pointer h-full">
+            <div className="card card--interactive">
               <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 w-20 h-20 flex items-center justify-center">
+                <div className="card-icon">
                     <div className="relative">
                       {/* 3D cube representation */}
                       <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg transform rotate-12 flex items-center justify-center">
@@ -135,7 +128,6 @@ export default function Tools() {
                       {/* Small cube for depth */}
                       <div className="absolute top-1 right-1 w-3 h-3 bg-gradient-to-br from-purple-300 to-blue-400 rounded transform rotate-45"></div>
                     </div>
-                  </div>
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">

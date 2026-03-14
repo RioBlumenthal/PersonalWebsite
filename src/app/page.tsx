@@ -8,7 +8,7 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           {/* Sidebar Card */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 sticky top-24">
+            <div className="card sticky top-24">
               <div className="text-center mb-6">
                 <div className="w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 border-4 border-[#89cff0] dark:border-[#0077b6]">
                   <Image
@@ -81,7 +81,7 @@ Check out my resume and some of my projects, and feel free to reach out to me at
           <div className="lg:col-span-2">
             <div className="space-y-8">
               {/* Welcome Section */}
-              <section className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700">
+              <section className="card card--spacious">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                   Welcome to My Portfolio
                 </h1>
@@ -112,7 +112,7 @@ Check out my resume and some of my projects, and feel free to reach out to me at
               </section>
 
               {/* Experience */}
-              <section className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700">
+              <section className="card card--spacious">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                   Experience
                 </h2>
@@ -147,7 +147,7 @@ Check out my resume and some of my projects, and feel free to reach out to me at
               </section>
 
               {/* Featured Projects Preview */}
-              <section className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700">
+              <section className="card card--spacious">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                   Featured Projects
                 </h2>

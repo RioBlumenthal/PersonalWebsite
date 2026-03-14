@@ -131,7 +131,7 @@ export default function IPGeolocation() {
         {geolocationData && (
           <div className="max-w-4xl mx-auto">
             {/* IP Address Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700 mb-6">
+            <div className="card mb-6">
               <div className="flex items-center space-x-4 mb-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-green-500 rounded-full flex items-center justify-center">
                   <div className="text-white text-xl">🌍</div>
@@ -149,7 +149,7 @@ export default function IPGeolocation() {
 
             {/* Location Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+              <div className="card">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                   <span className="mr-2">📍</span>
                   Location
@@ -188,7 +188,7 @@ export default function IPGeolocation() {
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+              <div className="card">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                   <span className="mr-2">🕐</span>
                   Timezone
@@ -216,7 +216,7 @@ export default function IPGeolocation() {
 
             {/* Network Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+              <div className="card">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                   <span className="mr-2">💰</span>
                   Currency
@@ -233,7 +233,7 @@ export default function IPGeolocation() {
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+              <div className="card">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                   <span className="mr-2">🔒</span>
                   Security
@@ -251,7 +251,7 @@ export default function IPGeolocation() {
 
             {/* Connection Information */}
             <div className="grid grid-cols-1 gap-6 mb-6">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+              <div className="card">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                   <span className="mr-2">🌐</span>
                   Connection
