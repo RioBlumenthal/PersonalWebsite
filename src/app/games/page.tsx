@@ -80,6 +80,29 @@ export default function Games() {
             </div>
           </Link>
 
+          {/* Render Window (Three.js) Card */}
+          <Link href="/games/renderwindow" className="group">
+            <div className="card card--interactive">
+              <div className="flex items-start space-x-4">
+                <div className="card-icon">
+                  <div className="w-12 h-12 flex items-center justify-center perspective-100">
+                    <div className="w-8 h-8 border-2 border-gray-400 dark:border-gray-500 rounded-sm transform rotate-[-8deg] skew-x-3 bg-gray-100/50 dark:bg-gray-700/50" 
+                         style={{ boxShadow: '2px 2px 0 rgba(0,0,0,0.1)' }} 
+                         aria-hidden />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
+                    Render Window
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    Experiments with Three.js — 3D scenes and WebGL demos.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Link>
+
           {/* Tango Card */}
           <Link href="/games/tango" className="group">
             <div className="card card--interactive">
