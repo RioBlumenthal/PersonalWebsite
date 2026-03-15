@@ -2,7 +2,7 @@
 
 import { useRef, useMemo, type ReactElement } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Model } from './3dmodels/eye';
+import { EyeModel } from './3dmodels/eye';
 import * as THREE from 'three';
 
 /** Reusable: ray from camera through pointer, intersect with plane at z=0. */
@@ -42,7 +42,7 @@ function EyeTrackingMouse(): ReactElement {
 
   return (
     <group ref={groupRef}>
-      <Model />
+      <EyeModel />
     </group>
   );
 }
