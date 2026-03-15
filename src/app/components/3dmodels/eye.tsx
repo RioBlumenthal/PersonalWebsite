@@ -23,11 +23,11 @@ type GLTFResult = {
   };
 };
 
-export function Model(props: GroupProps) {
+export function EyeModel(props: GroupProps) {
   const { nodes, materials } = useGLTF('/sample-models/eye.glb') as unknown as GLTFResult;
   return (
     <group {...props} dispose={null}>
-      <group rotation={[-2.019, -0.244, -0.211]}>
+      <group rotation={[-1.55, -0.244, -0.0]}> {/*-2.019, -0.244, -0.211*/}
         <group position={[-2.028, -2.028, -2.028]}>
           <mesh
             castShadow
