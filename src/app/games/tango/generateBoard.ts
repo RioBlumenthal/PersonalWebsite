@@ -95,7 +95,8 @@ function countHumanSolutions(grid: Grid, connectionsVertical: Grid, connectionsH
       if (hasEmpty) return 0;
       return isCompleteAndValid(work, connectionsVertical, connectionsHorizontal) ? 1 : 0;
     }
-    const [row, col, value] = forced[0];
+    const move = forced[0];
+    const { row, col, value } = move;
     if (!canPlace(work, row, col, value, connectionsVertical, connectionsHorizontal)) return 0;
     work[row][col] = value;
   }

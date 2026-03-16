@@ -182,6 +182,13 @@ export function canPlace(grid: Grid, row: number, col: number, value: CellValue,
 export type ConnectionGridH = (0 | 1 | null)[][]; // size x (size-1)
 export type ConnectionGridV = (0 | 1 | null)[][]; // (size-1) x size
 
+export type ForcedMove = {
+  row: number;
+  col: number;
+  value: 0 | 1;
+  reason: string;
+};
+
 /**
  * Returns all (row, col, value) moves that are forced by human-deducible rules:
  * 1) Two in a row next to an empty → empty must be the opposite symbol
@@ -194,14 +201,18 @@ export function getForcedMoves(
   grid: Grid,
   connectionsVertical?: ConnectionGridV | Grid,
   connectionsHorizontal?: ConnectionGridH | Grid
-): [number, number, 0 | 1][] {
+): ForcedMove[] {
   const size = grid.length;
-  const byCell = new Map<string, Set<0 | 1>>();
+  const byCell = new Map<string, { values: Set<0 | 1>; reasons: Set<string> }>();
   const key = (r: number, c: number) => `${r},${c}`;
-  const add = (r: number, c: number, val: 0 | 1) => {
+  const add = (r: number, c: number, val: 0 | 1, reason: string) => {
     const k = key(r, c);
-    if (!byCell.has(k)) byCell.set(k, new Set());
-    byCell.get(k)!.add(val);
+    if (!byCell.has(k)) {
+      byCell.set(k, { values: new Set<0 | 1>(), reasons: new Set<string>() });
+    }
+    const entry = byCell.get(k)!;
+    entry.values.add(val);
+    entry.reasons.add(reason);
   };
 
   // Rule 1: Two in a row → neighbor empty must be opposite
@@ -232,7 +243,7 @@ export function getForcedMoves(
       const a = grid[r - 1][c], b = grid[r + 1][c];
       if (a !== null && b !== null && a === b) v.push((1 - a) as 0 | 1);
     }
-    if (v.length && v.every(x => x === v[0])) add(r, c, v[0]);
+    if (v.length && v.every(x => x === v[0])) add(r, c, v[0], 'two in a row');
   };
 
   // Rule 2: Connection where one side filled, other empty → empty forced
@@ -244,7 +255,7 @@ export function getForcedMoves(
       const conn = connH[r]?.[c - 1];
       const left = grid[r]?.[c - 1];
       if (conn !== null && conn !== undefined && left !== null) {
-        add(r, c, (conn === 1 ? left : (1 - left)) as 0 | 1);
+        add(r, c, (conn === 1 ? left : (1 - left)) as 0 | 1, 'connection');
         return;
       }
     }
@@ -252,7 +263,7 @@ export function getForcedMoves(
       const conn = connH[r]?.[c];
       const right = grid[r]?.[c + 1];
       if (conn !== null && conn !== undefined && right !== null) {
-        add(r, c, (conn === 1 ? right : (1 - right)) as 0 | 1);
+        add(r, c, (conn === 1 ? right : (1 - right)) as 0 | 1, 'connection');
         return;
       }
     }
@@ -260,7 +271,7 @@ export function getForcedMoves(
       const conn = connV[r - 1]?.[c];
       const up = grid[r - 1]?.[c];
       if (conn !== null && conn !== undefined && up !== null) {
-        add(r, c, (conn === 1 ? up : (1 - up)) as 0 | 1);
+        add(r, c, (conn === 1 ? up : (1 - up)) as 0 | 1, 'connection');
         return;
       }
     }
@@ -268,7 +279,7 @@ export function getForcedMoves(
       const conn = connV[r]?.[c];
       const down = grid[r + 1]?.[c];
       if (conn !== null && conn !== undefined && down !== null) {
-        add(r, c, (conn === 1 ? down : (1 - down)) as 0 | 1);
+        add(r, c, (conn === 1 ? down : (1 - down)) as 0 | 1, 'connection');
       }
     }
   };
@@ -286,7 +297,7 @@ export function getForcedMoves(
     const forcedVal: 0 | 1 | null =
       count0 === half ? 1 : count1 === half ? 0 : null;
     if (forcedVal !== null && empties.length > 0) {
-      for (const [r, c] of empties) add(r, c, forcedVal);
+      for (const [r, c] of empties) add(r, c, forcedVal, 'row/column count');
     }
   };
 
@@ -316,18 +327,18 @@ export function getForcedMoves(
       // first & last same → second and second-to-last must be opposite
       if (first !== null && last !== null && first === last) {
         const opp = (1 - first) as 0 | 1;
-        if (second === null && size > 1) add(r, 1, opp);
-        if (beforeLast === null && size > 2) add(r, size - 2, opp);
+        if (second === null && size > 1) add(r, 1, opp, 'edge pattern: first & last same');
+        if (beforeLast === null && size > 2) add(r, size - 2, opp, 'edge pattern: first & last same');
       }
 
       // first & second-to-last same → last must be opposite
       if (first !== null && beforeLast !== null && first === beforeLast && last === null && size > 2) {
-        add(r, size - 1, (1 - first) as 0 | 1);
+        add(r, size - 1, (1 - first) as 0 | 1, 'edge pattern: first & second-to-last same');
       }
 
       // second & last same → first must be opposite
       if (second !== null && last !== null && second === last && first === null && size > 1) {
-        add(r, 0, (1 - second) as 0 | 1);
+        add(r, 0, (1 - second) as 0 | 1, 'edge pattern: second & last same');
       }
     }
 
@@ -341,27 +352,29 @@ export function getForcedMoves(
       // first & last same → second and second-to-last must be opposite
       if (first !== null && last !== null && first === last) {
         const opp = (1 - first) as 0 | 1;
-        if (second === null && size > 1) add(1, c, opp);
-        if (beforeLast === null && size > 2) add(size - 2, c, opp);
+        if (second === null && size > 1) add(1, c, opp, 'edge pattern: first & last same');
+        if (beforeLast === null && size > 2) add(size - 2, c, opp, 'edge pattern: first & last same');
       }
 
       // first & second-to-last same → last must be opposite
       if (first !== null && beforeLast !== null && first === beforeLast && last === null && size > 2) {
-        add(size - 1, c, (1 - first) as 0 | 1);
+        add(size - 1, c, (1 - first) as 0 | 1, 'edge pattern: first & second-to-last same');
       }
 
       // second & last same → first must be opposite
       if (second !== null && last !== null && second === last && first === null && size > 1) {
-        add(0, c, (1 - second) as 0 | 1);
+        add(0, c, (1 - second) as 0 | 1, 'edge pattern: second & last same');
       }
     }
   }
 
-  const out: [number, number, 0 | 1][] = [];
-  for (const [k, vals] of byCell) {
-    if (vals.size === 1) {
+  const out: ForcedMove[] = [];
+  for (const [k, entry] of byCell) {
+    if (entry.values.size === 1) {
       const [r, c] = k.split(',').map(Number);
-      out.push([r, c, [...vals][0]]);
+      const value = [...entry.values][0];
+      const reason = [...entry.reasons].join(' + ');
+      out.push({ row: r, col: c, value, reason });
     }
   }
   return out;

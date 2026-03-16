@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Grid, isCompleteAndValid } from './checkBoard';
+import { Grid, isCompleteAndValid, getForcedMoves } from './checkBoard';
 import { generateOptimalBoardWithSolution } from './generateBoard';
 
 const TangoGame: React.FC = () => {
@@ -15,6 +15,7 @@ const TangoGame: React.FC = () => {
   const [isComplete, setIsComplete] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [errorTimers, setErrorTimers] = useState<Map<string, NodeJS.Timeout>>(new Map());
+  const [lastHintReason, setLastHintReason] = useState<string | null>(null);
 
   // Initialize the game
   useEffect(() => {
@@ -144,6 +145,7 @@ const TangoGame: React.FC = () => {
     
     setIsComplete(false);
     setShowPopup(false);
+    setLastHintReason(null);
   };
 
   // Close popup
@@ -156,38 +158,57 @@ const TangoGame: React.FC = () => {
     setShowPopup(false);
   };
 
-  // Handle hint
+  // Handle hint (use next human-forced move if available)
   const handleHint = () => {
     if (isComplete) return;
-    
-    // Find all empty cells that are not prefilled or already hinted
-    const emptyCells: [number, number][] = [];
-    for (let row = 0; row < grid.length; row++) {
-      for (let col = 0; col < grid[row].length; col++) {
-        if (grid[row][col] === null && !prefilledCells[row][col] && !hintCells[row][col]) {
-          emptyCells.push([row, col]);
+
+    // Compute all human-forced moves for the current grid
+    const forced = getForcedMoves(grid, connectionsVertical, connectionsHorizontal);
+
+    // Filter out moves that target prefilled or already-hinted cells
+    const candidateForced = forced.filter(move => !prefilledCells[move.row]?.[move.col] && !hintCells[move.row]?.[move.col]);
+
+    let row: number | null = null;
+    let col: number | null = null;
+    let value: 0 | 1 | null = null;
+    let reason: string | null = null;
+
+    if (candidateForced.length > 0) {
+      // Take the first human-forced move as the hint
+      const move = candidateForced[0];
+      row = move.row;
+      col = move.col;
+      value = move.value;
+      reason = move.reason;
+    } else {
+      // Fallback: no human-forced move found; pick a random remaining empty correct cell
+      const emptyCells: [number, number][] = [];
+      for (let r = 0; r < grid.length; r++) {
+        for (let c = 0; c < grid[r].length; c++) {
+          if (grid[r][c] === null && !prefilledCells[r][c] && !hintCells[r][c]) {
+            emptyCells.push([r, c]);
+          }
         }
       }
+      if (emptyCells.length === 0) return;
+      const randomIndex = Math.floor(Math.random() * emptyCells.length);
+      [row, col] = emptyCells[randomIndex];
+      value = solution[row][col] as 0 | 1;
+      reason = 'random safe fill from final solution';
     }
-    
-    // If no empty cells available, return
-    if (emptyCells.length === 0) return;
-    
-    // Pick a random empty cell
-    const randomIndex = Math.floor(Math.random() * emptyCells.length);
-    const [row, col] = emptyCells[randomIndex];
-    
-    // Reveal the correct value from the solution
-    const newGrid = grid.map(row => [...row]);
-    newGrid[row][col] = solution[row][col];
+
+    if (row === null || col === null || value === null) return;
+
+    setLastHintReason(reason);
+
+    const newGrid = grid.map(r => [...r]);
+    newGrid[row][col] = value;
     setGrid(newGrid);
-    
-    // Mark this cell as a hint cell
-    const newHintCells = hintCells.map(row => [...row]);
+
+    const newHintCells = hintCells.map(r => [...r]);
     newHintCells[row][col] = true;
     setHintCells(newHintCells);
-    
-    // Check win condition
+
     if (isCompleteAndValid(newGrid)) {
       setIsComplete(true);
       setShowPopup(true);
@@ -338,7 +359,13 @@ const TangoGame: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-gray-600 px-2">
+        <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-gray-700 px-2 min-h-[1.5rem]">
+          {lastHintReason && (
+            <p>Hint used rule: {lastHintReason}</p>
+          )}
+        </div>
+
+        <div className="mt-2 sm:mt-4 text-center">
           <p>Click cells to cycle through: empty → O → X → empty</p>
         </div>
 
