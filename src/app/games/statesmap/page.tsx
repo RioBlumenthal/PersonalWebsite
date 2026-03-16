@@ -16,9 +16,24 @@ const NORTHEAST_IDS = new Set([
 ]);
 const NORTHEAST_HOVER_SCALE = 1.8;
 
+const VISITED_STORAGE_KEY = "statesmap-visited";
+
+function loadVisitedFromStorage(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = localStorage.getItem(VISITED_STORAGE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return new Set();
+    return new Set(arr.filter((id): id is string => typeof id === "string"));
+  } catch {
+    return new Set();
+  }
+}
+
 export default function StatesMapPage() {
   const [statesData, setStatesData] = useState<StateData[] | null>(null);
-  const [visited, setVisited] = useState<Set<string>>(() => new Set());
+  const [visited, setVisited] = useState<Set<string>>(loadVisitedFromStorage);
   const [labelPositions, setLabelPositions] = useState<Record<string, { x: number; y: number }>>({});
   const [hoverNortheast, setHoverNortheast] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -42,6 +57,15 @@ export default function StatesMapPage() {
     if (n === 0) return { x: 865, y: 150 };
     return { x: sx / n, y: sy / n };
   }, [statesData, labelPositions]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem(VISITED_STORAGE_KEY, JSON.stringify(Array.from(visited)));
+    } catch {
+      // ignore storage errors (e.g. private mode, quota)
+    }
+  }, [visited]);
 
   useEffect(() => {
     let cancelled = false;
