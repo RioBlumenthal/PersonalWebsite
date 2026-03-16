@@ -169,6 +169,14 @@ export default function StatesMapPage() {
           >
             {count} / {totalStates} states
           </span>
+          <button
+            type="button"
+            onClick={() => setVisited(new Set())}
+            disabled={count === 0}
+            className="rounded-full border border-foreground/30 bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-foreground/10 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            Clear
+          </button>
         </div>
       </div>
       <p className="text-center text-sm text-foreground/70">
