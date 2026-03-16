@@ -136,6 +136,77 @@ export default function StatesMapPage() {
     });
   }, []);
 
+  const downloadMapAsPng = useCallback(() => {
+    const svg = svgRef.current;
+    if (!svg || typeof document === "undefined") return;
+
+    const clone = svg.cloneNode(true) as SVGSVGElement;
+    const origPaths = svg.querySelectorAll<SVGPathElement>("path[id]");
+    const clonePaths = clone.querySelectorAll<SVGPathElement>("path[id]");
+    origPaths.forEach((orig, i) => {
+      const el = clonePaths[i];
+      if (!el) return;
+      const cs = window.getComputedStyle(orig);
+      el.setAttribute("fill", cs.fill);
+      el.setAttribute("stroke", cs.stroke);
+    });
+    const origTexts = svg.querySelectorAll<SVGTextElement>("text");
+    const cloneTexts = clone.querySelectorAll<SVGTextElement>("text");
+    origTexts.forEach((orig, i) => {
+      const el = cloneTexts[i];
+      if (!el) return;
+      const cs = window.getComputedStyle(orig);
+      el.setAttribute("fill", cs.fill);
+    });
+
+    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    const svgString = new XMLSerializer().serializeToString(clone);
+    const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+    const svgUrl = URL.createObjectURL(svgBlob);
+
+    const scale = 2;
+    const headerHeight = 56;
+    const viewW = 960;
+    const viewH = 600;
+    const canvas = document.createElement("canvas");
+    canvas.width = viewW * scale;
+    canvas.height = (viewH + headerHeight) * scale;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      URL.revokeObjectURL(svgUrl);
+      return;
+    }
+
+    const totalStates = statesData?.length ?? 0;
+    const count = visited.size;
+    const labelText = `${count} / ${totalStates} states`;
+
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--background").trim() || "#fff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--foreground").trim() || "#000";
+    ctx.font = `bold ${28 * scale}px system-ui, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(labelText, (viewW * scale) / 2, (headerHeight * scale) / 2);
+
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, headerHeight * scale, viewW * scale, viewH * scale);
+      URL.revokeObjectURL(svgUrl);
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "states-visited.png";
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }, "image/png");
+    };
+    img.onerror = () => URL.revokeObjectURL(svgUrl);
+    img.src = svgUrl;
+  }, [statesData, visited]);
+
   const count = visited.size;
   const totalStates = statesData?.length ?? 0;
 
@@ -173,9 +244,16 @@ export default function StatesMapPage() {
             type="button"
             onClick={() => setVisited(new Set())}
             disabled={count === 0}
-            className="rounded-full border border-foreground/30 bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-foreground/10 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-primary"
+            className="cursor-pointer rounded-full border border-foreground/30 bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-foreground/10 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-primary"
           >
             Clear
+          </button>
+          <button
+            type="button"
+            onClick={downloadMapAsPng}
+            className="cursor-pointer rounded-full border border-foreground/30 bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-foreground/10 focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            Download
           </button>
         </div>
       </div>
