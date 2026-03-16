@@ -142,7 +142,8 @@ export default function StatesMapPage() {
                 fill={isVisited ? "var(--primary)" : "var(--background)"}
                 stroke="var(--foreground)"
                 strokeWidth="1"
-                className="transition-colors duration-150 hover:opacity-90"
+                className="outline-none transition-colors duration-150 hover:opacity-90"
+                style={{ outline: "none" }}
                 onClick={() => toggleState(state.id)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -178,6 +179,27 @@ export default function StatesMapPage() {
           </g>
         </svg>
       </div>
+      <section className="w-full max-w-4xl" aria-label="States not yet visited">
+        <h2 className="mb-3 text-lg font-medium text-foreground">
+          Not yet visited ({totalStates - count})
+        </h2>
+        <ul className="flex flex-wrap gap-2">
+          {statesData
+            .filter((s) => !visited.has(s.id))
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((state) => (
+              <li key={state.id}>
+                <button
+                  type="button"
+                  onClick={() => toggleState(state.id)}
+                  className="rounded-md border border-foreground/30 bg-background px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-foreground/10 focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  {state.name}
+                </button>
+              </li>
+            ))}
+        </ul>
+      </section>
     </div>
   );
 }
