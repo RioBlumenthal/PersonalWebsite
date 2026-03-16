@@ -147,7 +147,7 @@ export default function Games() {
                     States Map
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                    Click states on the US map to track where you&apos;ve been. Your progress is saved.
+                    Click states on the US map to track where you&apos;ve been.
                   </p>
                 </div>
               </div>
