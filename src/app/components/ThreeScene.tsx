@@ -1,40 +1,85 @@
 'use client';
 
-import { useRef, useMemo, type ReactElement } from 'react';
+import { useRef, useMemo, useEffect, type ReactElement, type RefObject } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { EyeModel } from './3dmodels/eye';
 import * as THREE from 'three';
 
-/** Reusable: ray from camera through pointer, intersect with plane at z=0. */
-function usePointerOnPlane(): THREE.Vector3 {
-  const { camera } = useThree();
+const IDLE_MS = 2000;
+
+/** Tracks mouse over the whole window; NDC is relative to the scene canvas so "center" is the eye. */
+function useGlobalPointerOnPlane(): { pointerTarget: THREE.Vector3; lastMoveTimeRef: RefObject<number> } {
+  const { camera, gl } = useThree();
   const target = useRef(new THREE.Vector3(0, 0, 0));
+  const lastMoveTimeRef = useRef(Date.now());
   const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), []);
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
+  const mouseRef = useRef({ clientX: 0, clientY: 0 });
+  const ndcRef = useRef(new THREE.Vector2());
 
-  useFrame((state) => {
-    raycaster.setFromCamera(state.pointer, camera);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onMove = (e: MouseEvent) => {
+      mouseRef.current = { clientX: e.clientX, clientY: e.clientY };
+      lastMoveTimeRef.current = Date.now();
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
+
+  useFrame(() => {
+    const { clientX, clientY } = mouseRef.current;
+    const rect = gl.domElement.getBoundingClientRect();
+    const w = rect.width || 1;
+    const h = rect.height || 1;
+    const relX = (clientX - rect.left) / w;
+    const relY = (clientY - rect.top) / h;
+    ndcRef.current.set(relX * 2 - 1, -(relY * 2 - 1));
+    raycaster.setFromCamera(ndcRef.current, camera);
     raycaster.ray.intersectPlane(plane, target.current);
   });
 
-  return target.current;
+  return { pointerTarget: target.current, lastMoveTimeRef };
 }
 
-/** Bias look-at toward camera (0 = cursor only, 1 = straight at camera). */
 const LOOK_AT_CAMERA_BIAS = 0.45;
+const WANDER_LOOK_AT_CAMERA_BIAS = 0.35;
+const FOLLOW_SPEED = 0.05;
+const WANDER_UPDATE_MS = 3000;
+const WANDER_AMOUNT = 0.9;
+const WANDER_BLEND = 0.08;
 
-/** Eye model that tracks the mouse (smooth lookAt), biased toward the camera. */
+/** Eye model that tracks the mouse (smooth lookAt), wanders when idle. */
 function EyeTrackingMouse(): ReactElement {
   const { camera } = useThree();
   const groupRef = useRef<THREE.Group>(null);
-  const pointerTarget = usePointerOnPlane();
+  const { pointerTarget, lastMoveTimeRef } = useGlobalPointerOnPlane();
   const smoothRef = useRef(new THREE.Vector3(0, 0, 0));
   const blendedRef = useRef(new THREE.Vector3(0, 0, 0));
-  const followSpeed = 0.05;
+  const wanderTargetRef = useRef(new THREE.Vector3(0, 0, 0));
+  const wanderUpdateTimeRef = useRef(0);
+  const wanderBlendedRef = useRef(new THREE.Vector3(0, 0, 0));
 
   useFrame(() => {
-    blendedRef.current.copy(pointerTarget).lerp(camera.position, LOOK_AT_CAMERA_BIAS);
-    smoothRef.current.lerp(blendedRef.current, followSpeed);
+    const now = Date.now();
+    const idle = now - lastMoveTimeRef.current > IDLE_MS;
+
+    if (idle) {
+      if (now - wanderUpdateTimeRef.current > WANDER_UPDATE_MS) {
+        wanderUpdateTimeRef.current = now;
+        wanderTargetRef.current.set(
+          (Math.random() - 0.5) * 2 * WANDER_AMOUNT,
+          (Math.random() - 0.5) * 2 * WANDER_AMOUNT,
+          0
+        );
+      }
+      wanderBlendedRef.current.copy(wanderTargetRef.current).lerp(camera.position, WANDER_LOOK_AT_CAMERA_BIAS);
+      blendedRef.current.lerp(wanderBlendedRef.current, WANDER_BLEND);
+    } else {
+      blendedRef.current.copy(pointerTarget).lerp(camera.position, LOOK_AT_CAMERA_BIAS);
+    }
+
+    smoothRef.current.lerp(blendedRef.current, FOLLOW_SPEED);
     if (groupRef.current) {
       groupRef.current.lookAt(smoothRef.current);
     }
