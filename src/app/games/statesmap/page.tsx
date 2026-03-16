@@ -194,7 +194,7 @@ export default function StatesMapPage() {
                   fill={isVisited ? "var(--primary)" : "var(--background)"}
                   stroke="var(--foreground)"
                   strokeWidth="1"
-                  className="outline-none transition-colors duration-150 hover:fill-neutral-300"
+                  className={`outline-none transition-colors duration-150 ${!isVisited ? "hover:fill-neutral-300" : ""}`}
                   style={{ outline: "none" }}
                   onClick={() => toggleState(state.id)}
                   onKeyDown={(e) => {
@@ -249,7 +249,7 @@ export default function StatesMapPage() {
                     fill={isVisited ? "var(--primary)" : "var(--background)"}
                     stroke="var(--foreground)"
                     strokeWidth="1"
-                    className="outline-none transition-colors duration-150 hover:fill-neutral-300"
+                    className={`outline-none transition-colors duration-150 ${!isVisited ? "hover:fill-neutral-300" : ""}`}
                     style={{ outline: "none" }}
                     onClick={() => toggleState(state.id)}
                     onKeyDown={(e) => {
