@@ -80,8 +80,8 @@ export default function Games() {
             </div>
           </Link>
 
-          {/* Render Window (Three.js) Card */}
-          <Link href="/games/renderwindow" className="group">
+          {/* Eyeball (Three.js) Card */}
+          <Link href="/games/eyeball" className="group">
             <div className="card card--interactive">
               <div className="flex items-start space-x-4">
                 <div className="card-icon">
@@ -93,10 +93,10 @@ export default function Games() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
-                    Render Window
+                    Eyeball
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                    Experiments with Three.js — 3D scenes and WebGL demos.
+                    Experiments with Three.js (it's an eyeball that follows your mouse).
                   </p>
                 </div>
               </div>
