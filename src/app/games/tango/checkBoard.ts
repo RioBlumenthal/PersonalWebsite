@@ -287,7 +287,8 @@ export function getForcedMoves(
   // Rule 3: Row/column has half of one symbol → remaining must be the other
   const half = size / 2;
   const checkCount = (getCell: (i: number) => CellValue, getCoords: (i: number) => [number, number]) => {
-    let count0 = 0, count1 = 0, empties: [number, number][] = [];
+    let count0 = 0, count1 = 0;
+    const empties: [number, number][] = [];
     for (let i = 0; i < size; i++) {
       const v = getCell(i);
       if (v === 0) count0++;
