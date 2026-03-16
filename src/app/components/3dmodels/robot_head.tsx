@@ -87,5 +87,5 @@ export function Model(props: GroupProps) {
   )
 }
 
-useGLTF.preload('/robot_head.glb')
+useGLTF.preload('/sample-models/robot_head.glb')
 
