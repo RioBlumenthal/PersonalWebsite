@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useCallback } from "react";
 
 type StateData = {
   id: string;
@@ -10,13 +10,38 @@ type StateData = {
 
 const STATES_JSON_URL = "/states.json";
 
+// Northeast states that scale together as a unit on hover
+const NORTHEAST_IDS = new Set([
+  "ME", "NH", "VT", "MA", "RI", "CT", "NY", "NJ", "PA", "DE", "MD",
+]);
+const NORTHEAST_HOVER_SCALE = 1.8;
+
 export default function StatesMapPage() {
   const [statesData, setStatesData] = useState<StateData[] | null>(null);
   const [visited, setVisited] = useState<Set<string>>(() => new Set());
   const [labelPositions, setLabelPositions] = useState<Record<string, { x: number; y: number }>>({});
+  const [hoverNortheast, setHoverNortheast] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+
+  const northeastCenter = useMemo(() => {
+    const neStates = statesData?.filter((s) => NORTHEAST_IDS.has(s.id)) ?? [];
+    if (neStates.length === 0) return { x: 865, y: 150 };
+    let sx = 0;
+    let sy = 0;
+    let n = 0;
+    for (const s of neStates) {
+      const pos = labelPositions[s.id];
+      if (pos) {
+        sx += pos.x;
+        sy += pos.y;
+        n += 1;
+      }
+    }
+    if (n === 0) return { x: 865, y: 150 };
+    return { x: sx / n, y: sy / n };
+  }, [statesData, labelPositions]);
 
   useEffect(() => {
     let cancelled = false;
@@ -125,57 +150,127 @@ export default function StatesMapPage() {
       <p className="text-center text-sm text-foreground/70">
         Click a state to mark it as visited.
       </p>
-      <div className="flex w-full justify-center overflow-auto">
+      <div className="flex w-full justify-center overflow-visible">
         <svg
           ref={svgRef}
           viewBox="0 0 960 600"
-          className="h-auto w-full max-w-4xl cursor-pointer select-none"
+          className="h-auto w-full max-w-4xl cursor-pointer select-none overflow-visible"
+          style={{ overflow: "visible" }}
           aria-label="US map - click states to mark visited"
         >
-          {statesData.map((state) => {
-            const isVisited = visited.has(state.id);
-            return (
-              <path
-                key={state.id}
-                id={state.id}
-                d={state.shape}
-                fill={isVisited ? "var(--primary)" : "var(--background)"}
-                stroke="var(--foreground)"
-                strokeWidth="1"
-                className="outline-none transition-colors duration-150 hover:opacity-90"
-                style={{ outline: "none" }}
-                onClick={() => toggleState(state.id)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    toggleState(state.id);
-                  }
-                }}
-                tabIndex={0}
-                role="button"
-                aria-pressed={isVisited}
-                aria-label={`${state.name}, ${isVisited ? "visited" : "not visited"}`}
-              />
-            );
-          })}
-          <g pointerEvents="none" aria-hidden>
-            {statesData.map((state) => {
-              const pos = labelPositions[state.id];
-              if (!pos) return null;
+          {statesData
+            .filter((s) => !NORTHEAST_IDS.has(s.id))
+            .map((state) => {
+              const isVisited = visited.has(state.id);
               return (
-                <text
-                  key={`label-${state.id}`}
-                  x={pos.x}
-                  y={pos.y}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  className="fill-foreground text-[10px] font-medium"
-                  style={{ fontSize: "10px" }}
-                >
-                  {state.name}
-                </text>
+                <path
+                  key={state.id}
+                  id={state.id}
+                  d={state.shape}
+                  fill={isVisited ? "var(--primary)" : "var(--background)"}
+                  stroke="var(--foreground)"
+                  strokeWidth="1"
+                  className="outline-none transition-colors duration-150 hover:opacity-90"
+                  style={{ outline: "none" }}
+                  onClick={() => toggleState(state.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggleState(state.id);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  aria-pressed={isVisited}
+                  aria-label={`${state.name}, ${isVisited ? "visited" : "not visited"}`}
+                />
               );
             })}
+          <g pointerEvents="none" aria-hidden>
+            {statesData
+              .filter((s) => !NORTHEAST_IDS.has(s.id))
+              .map((state) => {
+                const pos = labelPositions[state.id];
+                if (!pos) return null;
+                return (
+                  <text
+                    key={`label-${state.id}`}
+                    x={pos.x}
+                    y={pos.y}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="fill-foreground text-[10px] font-medium"
+                    style={{ fontSize: "10px" }}
+                  >
+                    {state.name}
+                  </text>
+                );
+              })}
+          </g>
+          <g
+            transform={`translate(${northeastCenter.x}, ${northeastCenter.y}) scale(${hoverNortheast ? NORTHEAST_HOVER_SCALE : 1}) translate(${-northeastCenter.x}, ${-northeastCenter.y})`}
+            style={{ transition: "transform 0.2s ease-out" }}
+            onMouseEnter={() => setHoverNortheast(true)}
+            onMouseLeave={() => setHoverNortheast(false)}
+          >
+            {statesData
+              .filter((s) => NORTHEAST_IDS.has(s.id))
+              .map((state) => {
+                const isVisited = visited.has(state.id);
+                return (
+                  <path
+                    key={state.id}
+                    id={state.id}
+                    d={state.shape}
+                    fill={isVisited ? "var(--primary)" : "var(--background)"}
+                    stroke="var(--foreground)"
+                    strokeWidth="1"
+                    className="outline-none transition-colors duration-150 hover:opacity-90"
+                    style={{ outline: "none" }}
+                    onClick={() => toggleState(state.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        toggleState(state.id);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-pressed={isVisited}
+                    aria-label={`${state.name}, ${isVisited ? "visited" : "not visited"}`}
+                  />
+                );
+              })}
+            {NORTHEAST_IDS.size > 0 && (() => {
+              const neScale = hoverNortheast ? NORTHEAST_HOVER_SCALE : 1;
+              return (
+                <g pointerEvents="none" aria-hidden>
+                  {statesData
+                    .filter((s) => NORTHEAST_IDS.has(s.id))
+                    .map((state) => {
+                      const pos = labelPositions[state.id];
+                      if (!pos) return null;
+                      return (
+                        <g
+                          key={`label-${state.id}`}
+                          transform={`translate(${pos.x}, ${pos.y}) scale(${1 / neScale}) translate(${-pos.x}, ${-pos.y})`}
+                        >
+                          <text
+                            x={pos.x}
+                            y={pos.y}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                            className="fill-foreground text-[10px] font-medium"
+                            style={{ fontSize: "10px" }}
+                          >
+                            {state.name}
+                          </text>
+                        </g>
+                      );
+                    })}
+                </g>
+              );
+            })()}
           </g>
         </svg>
       </div>
