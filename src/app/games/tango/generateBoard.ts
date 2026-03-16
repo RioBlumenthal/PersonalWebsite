@@ -1,4 +1,4 @@
-import { Grid, canPlace, isCompleteAndValid } from './checkBoard';
+import { Grid, canPlace, isCompleteAndValid, getForcedMoves } from './checkBoard';
 
 /**
  * Generate a complete valid Tango solution using tree pruning
@@ -82,49 +82,30 @@ function generateWithTreePruning(grid: Grid, positions: [number, number][], posi
 
 
 /**
- * Count the number of solutions for a given puzzle
+ * Count how many solutions are reachable by "human" moves only (no lookahead).
+ * A move is human-valid iff it is forced by: two-in-a-row, connection constraint, or row/column count.
+ * Returns 0 if no human solution, 1 if exactly one human solution (puzzle is human-solvable).
+ */
+function countHumanSolutions(grid: Grid, connectionsVertical: Grid, connectionsHorizontal: Grid): number {
+  const work = grid.map(row => [...row]);
+  for (;;) {
+    const forced = getForcedMoves(work, connectionsVertical, connectionsHorizontal);
+    if (forced.length === 0) {
+      const hasEmpty = work.some(row => row.some(c => c === null));
+      if (hasEmpty) return 0;
+      return isCompleteAndValid(work, connectionsVertical, connectionsHorizontal) ? 1 : 0;
+    }
+    const [row, col, value] = forced[0];
+    if (!canPlace(work, row, col, value, connectionsVertical, connectionsHorizontal)) return 0;
+    work[row][col] = value;
+  }
+}
+
+/**
+ * Count the number of solutions for a given puzzle (human-only: only forced moves count).
  */
 function countSolutions(grid: Grid, connectionsVertical: Grid, connectionsHorizontal: Grid): number {
-  const size = grid.length;
-  let solutionCount = 0;
-  
-  // Create shuffled list of empty cell positions
-  const emptyPositions: [number, number][] = [];
-  for (let i = 0; i < size; i++) {
-    for (let j = 0; j < size; j++) {
-      if (grid[i][j] === null) {
-        emptyPositions.push([i, j]);
-      }
-    }
-  }
-  
-  function solve(grid: Grid, connectionsVertical: Grid, connectionsHorizontal: Grid, positionIndex: number): void {
-    // If we've processed all empty cells, check if it's a valid solution
-    if (positionIndex === emptyPositions.length) {
-      if (isCompleteAndValid(grid, connectionsVertical, connectionsHorizontal)) {
-        solutionCount++;
-      }
-      return;
-    }
-    
-    // Get current empty position
-    const [row, col] = emptyPositions[positionIndex];
-    
-    // Try placing 0 and 1
-    for (const value of [0, 1] as const) {
-      if (canPlace(grid, row, col, value, connectionsVertical, connectionsHorizontal)) {
-        grid[row][col] = value;
-        solve(grid, connectionsVertical, connectionsHorizontal, positionIndex + 1);
-        grid[row][col] = null;
-        
-        // Early termination if we find more than one solution
-        if (solutionCount > 1) return;
-      }
-    }
-  }
-  
-  solve(grid, connectionsVertical, connectionsHorizontal, 0);
-  return solutionCount;
+  return countHumanSolutions(grid, connectionsVertical, connectionsHorizontal);
 }
 
 /**

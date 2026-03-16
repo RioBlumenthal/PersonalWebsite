@@ -176,6 +176,198 @@ export function canPlace(grid: Grid, row: number, col: number, value: CellValue,
 }
 
 /**
+ * Connection grids: horizontal[y][x] is between (y,x) and (y,x+1);
+ * vertical[y][x] is between (y,x) and (y+1,x). May contain null for unknown.
+ */
+export type ConnectionGridH = (0 | 1 | null)[][]; // size x (size-1)
+export type ConnectionGridV = (0 | 1 | null)[][]; // (size-1) x size
+
+/**
+ * Returns all (row, col, value) moves that are forced by human-deducible rules:
+ * 1) Two in a row next to an empty → empty must be the opposite symbol
+ * 2) Connection known between filled and empty cell → empty is forced by same/different
+ * 3) Row/column already has half of one symbol → remaining empties must be the other
+ * Each returned move is one-step deducible (no lookahead). Only returns a move if all
+ * rules that apply to that cell agree on the value (no contradictions).
+ */
+export function getForcedMoves(
+  grid: Grid,
+  connectionsVertical?: ConnectionGridV | Grid,
+  connectionsHorizontal?: ConnectionGridH | Grid
+): [number, number, 0 | 1][] {
+  const size = grid.length;
+  const byCell = new Map<string, Set<0 | 1>>();
+  const key = (r: number, c: number) => `${r},${c}`;
+  const add = (r: number, c: number, val: 0 | 1) => {
+    const k = key(r, c);
+    if (!byCell.has(k)) byCell.set(k, new Set());
+    byCell.get(k)!.add(val);
+  };
+
+  // Rule 1: Two in a row → neighbor empty must be opposite
+  const checkTwoInRow = (r: number, c: number) => {
+    if (grid[r][c] !== null) return;
+    const v: (0 | 1)[] = [];
+    if (c >= 2) {
+      const a = grid[r][c - 2], b = grid[r][c - 1];
+      if (a !== null && b !== null && a === b) v.push((1 - a) as 0 | 1);
+    }
+    if (c <= size - 3) {
+      const a = grid[r][c + 1], b = grid[r][c + 2];
+      if (a !== null && b !== null && a === b) v.push((1 - a) as 0 | 1);
+    }
+    if (c >= 1 && c <= size - 2) {
+      const a = grid[r][c - 1], b = grid[r][c + 1];
+      if (a !== null && b !== null && a === b) v.push((1 - a) as 0 | 1);
+    }
+    if (r >= 2) {
+      const a = grid[r - 2][c], b = grid[r - 1][c];
+      if (a !== null && b !== null && a === b) v.push((1 - a) as 0 | 1);
+    }
+    if (r <= size - 3) {
+      const a = grid[r + 1][c], b = grid[r + 2][c];
+      if (a !== null && b !== null && a === b) v.push((1 - a) as 0 | 1);
+    }
+    if (r >= 1 && r <= size - 2) {
+      const a = grid[r - 1][c], b = grid[r + 1][c];
+      if (a !== null && b !== null && a === b) v.push((1 - a) as 0 | 1);
+    }
+    if (v.length && v.every(x => x === v[0])) add(r, c, v[0]);
+  };
+
+  // Rule 2: Connection where one side filled, other empty → empty forced
+  const connH = connectionsHorizontal as (0 | 1 | null)[][] | undefined;
+  const connV = connectionsVertical as (0 | 1 | null)[][] | undefined;
+  const checkConnection = (r: number, c: number) => {
+    if (grid[r][c] !== null) return;
+    if (c > 0 && connH) {
+      const conn = connH[r]?.[c - 1];
+      const left = grid[r]?.[c - 1];
+      if (conn !== null && conn !== undefined && left !== null) {
+        add(r, c, (conn === 1 ? left : (1 - left)) as 0 | 1);
+        return;
+      }
+    }
+    if (c < size - 1 && connH) {
+      const conn = connH[r]?.[c];
+      const right = grid[r]?.[c + 1];
+      if (conn !== null && conn !== undefined && right !== null) {
+        add(r, c, (conn === 1 ? right : (1 - right)) as 0 | 1);
+        return;
+      }
+    }
+    if (r > 0 && connV) {
+      const conn = connV[r - 1]?.[c];
+      const up = grid[r - 1]?.[c];
+      if (conn !== null && conn !== undefined && up !== null) {
+        add(r, c, (conn === 1 ? up : (1 - up)) as 0 | 1);
+        return;
+      }
+    }
+    if (r < size - 1 && connV) {
+      const conn = connV[r]?.[c];
+      const down = grid[r + 1]?.[c];
+      if (conn !== null && conn !== undefined && down !== null) {
+        add(r, c, (conn === 1 ? down : (1 - down)) as 0 | 1);
+      }
+    }
+  };
+
+  // Rule 3: Row/column has half of one symbol → remaining must be the other
+  const half = size / 2;
+  const checkCount = (getCell: (i: number) => CellValue, getCoords: (i: number) => [number, number]) => {
+    let count0 = 0, count1 = 0, empties: [number, number][] = [];
+    for (let i = 0; i < size; i++) {
+      const v = getCell(i);
+      if (v === 0) count0++;
+      else if (v === 1) count1++;
+      else empties.push(getCoords(i));
+    }
+    const forcedVal: 0 | 1 | null =
+      count0 === half ? 1 : count1 === half ? 0 : null;
+    if (forcedVal !== null && empties.length > 0) {
+      for (const [r, c] of empties) add(r, c, forcedVal);
+    }
+  };
+
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (grid[r][c] !== null) continue;
+      checkTwoInRow(r, c);
+      checkConnection(r, c);
+    }
+  }
+  for (let r = 0; r < size; r++) {
+    checkCount((i) => grid[r][i], (i) => [r, i]);
+  }
+  for (let c = 0; c < size; c++) {
+    checkCount((i) => grid[i][c], (i) => [i, c]);
+  }
+
+  // Edge-based patterns involving first/last cells of rows and columns
+  if (size >= 3) {
+    // Rows
+    for (let r = 0; r < size; r++) {
+      const first = grid[r][0];
+      const last = grid[r][size - 1];
+      const second = size > 1 ? grid[r][1] : null;
+      const beforeLast = size > 2 ? grid[r][size - 2] : null;
+
+      // first & last same → second and second-to-last must be opposite
+      if (first !== null && last !== null && first === last) {
+        const opp = (1 - first) as 0 | 1;
+        if (second === null && size > 1) add(r, 1, opp);
+        if (beforeLast === null && size > 2) add(r, size - 2, opp);
+      }
+
+      // first & second-to-last same → last must be opposite
+      if (first !== null && beforeLast !== null && first === beforeLast && last === null && size > 2) {
+        add(r, size - 1, (1 - first) as 0 | 1);
+      }
+
+      // second & last same → first must be opposite
+      if (second !== null && last !== null && second === last && first === null && size > 1) {
+        add(r, 0, (1 - second) as 0 | 1);
+      }
+    }
+
+    // Columns
+    for (let c = 0; c < size; c++) {
+      const first = grid[0][c];
+      const last = grid[size - 1][c];
+      const second = size > 1 ? grid[1][c] : null;
+      const beforeLast = size > 2 ? grid[size - 2][c] : null;
+
+      // first & last same → second and second-to-last must be opposite
+      if (first !== null && last !== null && first === last) {
+        const opp = (1 - first) as 0 | 1;
+        if (second === null && size > 1) add(1, c, opp);
+        if (beforeLast === null && size > 2) add(size - 2, c, opp);
+      }
+
+      // first & second-to-last same → last must be opposite
+      if (first !== null && beforeLast !== null && first === beforeLast && last === null && size > 2) {
+        add(size - 1, c, (1 - first) as 0 | 1);
+      }
+
+      // second & last same → first must be opposite
+      if (second !== null && last !== null && second === last && first === null && size > 1) {
+        add(0, c, (1 - second) as 0 | 1);
+      }
+    }
+  }
+
+  const out: [number, number, 0 | 1][] = [];
+  for (const [k, vals] of byCell) {
+    if (vals.size === 1) {
+      const [r, c] = k.split(',').map(Number);
+      out.push([r, c, [...vals][0]]);
+    }
+  }
+  return out;
+}
+
+/**
  * Check if the board is complete and valid (win condition)
  */
 export function isCompleteAndValid(grid: Grid, connectionsVertical?: Grid, connectionsHorizontal?: Grid): boolean {
