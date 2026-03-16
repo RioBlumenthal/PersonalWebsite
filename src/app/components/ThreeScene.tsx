@@ -61,11 +61,11 @@ function SceneContent(): ReactElement {
 
 function ThreeScene(): ReactElement {
   return (
-    <div className="min-h-0 flex-1 w-full h-full min-h-[400px]">
+    <div className="min-h-0 flex-1 w-full h-full min-h-[400px] touch-none">
       <Canvas
         camera={{ position: [0, 0, 5], fov: 75 }}
         gl={{ antialias: true }}
-        style={{ width: '100%', height: '100%', display: 'block' }}
+        style={{ width: '100%', height: '100%', display: 'block', touchAction: 'none' }}
       >
         <SceneContent />
       </Canvas>
