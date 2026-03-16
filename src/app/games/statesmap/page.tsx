@@ -50,10 +50,25 @@ export default function StatesMapPage() {
     if (!svg || !statesData?.length) return;
     const positions: Record<string, { x: number; y: number }> = {};
     const paths = svg.querySelectorAll<SVGPathElement>("path[id]");
+    const GRID_STEP = 4; // sample every 4 units in viewBox (960x600)
+
     paths.forEach((path) => {
       const id = path.getAttribute("id");
-      if (id) {
-        const bbox = path.getBBox();
+      if (!id) return;
+      const bbox = path.getBBox();
+      const inFill: { x: number; y: number }[] = [];
+      for (let x = bbox.x; x <= bbox.x + bbox.width; x += GRID_STEP) {
+        for (let y = bbox.y; y <= bbox.y + bbox.height; y += GRID_STEP) {
+          if (path.isPointInFill(new DOMPoint(x, y))) {
+            inFill.push({ x, y });
+          }
+        }
+      }
+      if (inFill.length > 0) {
+        const cx = inFill.reduce((s, p) => s + p.x, 0) / inFill.length;
+        const cy = inFill.reduce((s, p) => s + p.y, 0) / inFill.length;
+        positions[id] = { x: cx, y: cy };
+      } else {
         positions[id] = {
           x: bbox.x + bbox.width / 2,
           y: bbox.y + bbox.height / 2,
