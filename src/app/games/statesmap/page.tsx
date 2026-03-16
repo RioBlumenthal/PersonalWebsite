@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from "react";
 
 type StateData = {
   id: string;
@@ -10,34 +10,13 @@ type StateData = {
 
 const STATES_JSON_URL = "/states.json";
 
-const STORAGE_KEY = "states-visited";
-
-function loadVisited(): Set<string> {
-  if (typeof window === "undefined") return new Set();
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return new Set();
-    const arr = JSON.parse(raw) as string[];
-    return new Set(Array.isArray(arr) ? arr : []);
-  } catch {
-    return new Set();
-  }
-}
-
-function saveVisited(visited: Set<string>) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([...visited]));
-  } catch {
-    // ignore
-  }
-}
-
 export default function StatesMapPage() {
   const [statesData, setStatesData] = useState<StateData[] | null>(null);
-  const [visited, setVisited] = useState<Set<string>>(loadVisited);
+  const [visited, setVisited] = useState<Set<string>>(() => new Set());
+  const [labelPositions, setLabelPositions] = useState<Record<string, { x: number; y: number }>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -66,17 +45,35 @@ export default function StatesMapPage() {
     };
   }, []);
 
+  useLayoutEffect(() => {
+    const svg = svgRef.current;
+    if (!svg || !statesData?.length) return;
+    const positions: Record<string, { x: number; y: number }> = {};
+    const paths = svg.querySelectorAll<SVGPathElement>("path[id]");
+    paths.forEach((path) => {
+      const id = path.getAttribute("id");
+      if (id) {
+        const bbox = path.getBBox();
+        positions[id] = {
+          x: bbox.x + bbox.width / 2,
+          y: bbox.y + bbox.height / 2,
+        };
+      }
+    });
+    setLabelPositions(positions);
+  }, [statesData]);
+
   const toggleState = useCallback((id: string) => {
     setVisited((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
-      saveVisited(next);
       return next;
     });
   }, []);
 
   const count = visited.size;
+  const totalStates = statesData?.length ?? 0;
 
   if (loading) {
     return (
@@ -96,8 +93,8 @@ export default function StatesMapPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="flex flex-col items-center gap-6 p-4 md:p-6">
+      <div className="flex w-full max-w-4xl flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold text-foreground">
           States I&apos;ve been to
         </h1>
@@ -106,16 +103,16 @@ export default function StatesMapPage() {
             className="rounded-full bg-primary/20 px-4 py-2 text-lg font-medium text-foreground"
             aria-live="polite"
           >
-            {count} / {statesData.length} states
+            {count} / {totalStates} states
           </span>
         </div>
       </div>
-      <p className="text-sm text-foreground/70">
-        Click a state to mark it as visited. Your selection is saved in this
-        browser.
+      <p className="text-center text-sm text-foreground/70">
+        Click a state to mark it as visited.
       </p>
-      <div className="overflow-auto rounded-lg border border-border bg-card">
+      <div className="flex w-full justify-center overflow-auto">
         <svg
+          ref={svgRef}
           viewBox="0 0 960 600"
           className="h-auto w-full max-w-4xl cursor-pointer select-none"
           aria-label="US map - click states to mark visited"
@@ -145,6 +142,25 @@ export default function StatesMapPage() {
               />
             );
           })}
+          <g pointerEvents="none" aria-hidden>
+            {statesData.map((state) => {
+              const pos = labelPositions[state.id];
+              if (!pos) return null;
+              return (
+                <text
+                  key={`label-${state.id}`}
+                  x={pos.x}
+                  y={pos.y}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  className="fill-foreground text-[10px] font-medium"
+                  style={{ fontSize: "10px" }}
+                >
+                  {state.name}
+                </text>
+              );
+            })}
+          </g>
         </svg>
       </div>
     </div>
