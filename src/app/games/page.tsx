@@ -131,6 +131,28 @@ export default function Games() {
               </div>
             </div>
           </Link>
+
+          {/* States Map Card */}
+          <Link href="/games/statesmap" className="group">
+            <div className="card card--interactive">
+              <div className="flex items-start space-x-4">
+                <div className="card-icon">
+                  <svg viewBox="0 0 24 24" className="w-12 h-12 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" aria-hidden>
+                    <path d="M3 6v12l6-3 6 3 6-3V6l-6 3-6-3-6 3z" />
+                    <path d="M9 3v12M15 6v12" strokeWidth="1" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
+                    States Map
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    Click states on the US map to track where you&apos;ve been. Your progress is saved.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Link>
         </div>
       </div>
     </motion.div>
