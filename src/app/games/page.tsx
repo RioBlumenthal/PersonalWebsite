@@ -96,7 +96,7 @@ export default function Games() {
                     Eyeball
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                    Experiments with Three.js (it's an eyeball that follows your mouse).
+                    Experiments with Three.js (it&apos;s an eyeball that follows your mouse).
                   </p>
                 </div>
               </div>
