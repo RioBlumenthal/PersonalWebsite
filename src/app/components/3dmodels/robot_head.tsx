@@ -32,13 +32,13 @@ type GLTFResult = {
 export function Model(props: GroupProps) {
   const { nodes, materials } = useGLTF('/sample-models/robot_head.glb') as unknown as GLTFResult;
   return (
-    <group {...props} dispose={null}>
+    <group {...props} dispose={null} rotation={[0, -Math.PI / 2, 0]}>
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.Object_4.geometry}
         material={materials['Material.002']}
-        rotation={[0, 0, -1.573]}
+        rotation={[0, 0, -1.573]} //0, 0, -1.573
       />
       <mesh
         castShadow
@@ -46,7 +46,7 @@ export function Model(props: GroupProps) {
         geometry={nodes.Object_6.geometry}
         material={materials['Material.006']}
         position={[0.825, 0, 0.261]}
-        rotation={[-0.213, -0.279, 1.484]}
+        rotation={[-0.213, -0.279, 1.484]} // [-0.213, -0.279, 1.484]
         scale={[0.101, 0.054, 0.101]}
       />
       <mesh
@@ -55,7 +55,7 @@ export function Model(props: GroupProps) {
         geometry={nodes.Object_8.geometry}
         material={materials['Material.004']}
         position={[0.922, -0.151, 0]}
-        rotation={[0, 0, -1.885]}
+        rotation={[0, 0, -1.885]} //0, 0, -1.885
         scale={0.153}
       />
       <mesh
@@ -71,7 +71,7 @@ export function Model(props: GroupProps) {
         geometry={nodes.Object_12.geometry}
         material={materials['Material.002']}
         position={[0, -0.102, 0.969]}
-        rotation={[Math.PI, 1.551, -1.563]}
+        rotation={[Math.PI, 1.551, -1.563]} // [Math.PI, 1.551, -1.563]
         scale={[-0.406, 0.134, 0.405]}
       />
       <mesh
@@ -80,7 +80,7 @@ export function Model(props: GroupProps) {
         geometry={nodes.Object_14.geometry}
         material={materials['Material.008']}
         position={[0, -0.102, 0.969]}
-        rotation={[Math.PI, 1.551, -1.563]}
+        rotation={[Math.PI, 1.551, -1.563]} // [Math.PI, 1.551, -1.563]
         scale={[-0.406, 0.134, 0.405]}
       />
     </group>
