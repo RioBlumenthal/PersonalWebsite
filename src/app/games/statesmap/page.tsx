@@ -8,8 +8,7 @@ type StateData = {
   shape: string;
 };
 
-const STATES_JSON_URL =
-  "https://willhaley.com/assets/united-states-map-react/states.json";
+const STATES_JSON_URL = "/states.json";
 
 const STORAGE_KEY = "states-visited";
 
