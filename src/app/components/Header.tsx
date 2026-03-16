@@ -8,7 +8,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Model as RobotHeadModel } from './3dmodels/robot_head';
 import * as THREE from "three";
 
-const IDLE_MS = 1000;
+const IDLE_MS = 2000;
 
 /** Tracks mouse over the whole window; NDC is relative to the robot canvas so "center" is the robot. */
 function useGlobalPointerOnPlane(): { pointerTarget: THREE.Vector3; lastMoveTimeRef: MutableRefObject<number> } {
@@ -46,11 +46,11 @@ function useGlobalPointerOnPlane(): { pointerTarget: THREE.Vector3; lastMoveTime
   return { pointerTarget: target.current, lastMoveTimeRef };
 }
 
-const LOOK_AT_CAMERA_BIAS = 0.9;
+const LOOK_AT_CAMERA_BIAS = 0.95;
 const WANDER_LOOK_AT_CAMERA_BIAS = 0.35;
 const FOLLOW_SPEED = 0.05;
-const WANDER_UPDATE_MS = 2000;
-const WANDER_AMOUNT = 0.9;
+const WANDER_UPDATE_MS = 3000;
+const WANDER_AMOUNT = 0.7;
 const WANDER_BLEND = 0.08;
 
 function RobotTrackingMouse() {
