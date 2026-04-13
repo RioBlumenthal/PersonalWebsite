@@ -6,6 +6,7 @@ import { Center } from "@react-three/drei";
 import type { Detection, FaceDetector } from "@mediapipe/tasks-vision";
 import * as THREE from "three";
 import { PottedPlantModel } from "../../components/3dmodels/potted_plant";
+import { WindowModel } from "../../components/3dmodels/window";
 
 type FaceKeypoint = Detection["keypoints"][number];
 
@@ -106,7 +107,11 @@ function headToTargetRotation(
 
 type RotationRef = { current: { yaw: number; pitch: number } };
 
-function HeadTrackedPlant({ rotationRef }: { rotationRef: RotationRef }) {
+/** Camera at ~[0,1,2.35] looks toward the origin; window sits on that axis between camera and plant. */
+const WINDOW_Z = 1.6;
+const WINDOW_Y = 0.5;
+
+function HeadTrackedScene({ rotationRef }: { rotationRef: RotationRef }) {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame(() => {
@@ -118,6 +123,11 @@ function HeadTrackedPlant({ rotationRef }: { rotationRef: RotationRef }) {
 
   return (
     <group ref={groupRef}>
+      <group position={[0, WINDOW_Y, WINDOW_Z]}>
+        <Center>
+          <WindowModel scale={0.012} rotation={[0, THREE.MathUtils.degToRad(270), 0]} />
+        </Center>
+      </group>
       <Center>
         <PottedPlantModel />
       </Center>
@@ -244,7 +254,7 @@ export default function HeadFollowClient() {
           <ambientLight intensity={0.55} />
           <directionalLight position={[4, 6, 5]} intensity={1.05} castShadow />
           <directionalLight position={[-3, 2, -2]} intensity={0.35} />
-          <HeadTrackedPlant rotationRef={rotationRef} />
+          <HeadTrackedScene rotationRef={rotationRef} />
         </Canvas>
       </div>
 
