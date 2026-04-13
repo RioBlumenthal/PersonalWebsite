@@ -85,11 +85,13 @@ export default function Games() {
             <div className="card card--interactive">
               <div className="flex items-start space-x-4">
                 <div className="card-icon">
-                  <div className="w-12 h-12 flex items-center justify-center perspective-100">
-                    <div className="w-8 h-8 border-2 border-gray-400 dark:border-gray-500 rounded-sm transform rotate-[-8deg] skew-x-3 bg-gray-100/50 dark:bg-gray-700/50" 
-                         style={{ boxShadow: '2px 2px 0 rgba(0,0,0,0.1)' }} 
-                         aria-hidden />
-                  </div>
+                  <Image
+                    src="/tools/eyeball.png"
+                    alt="Eyeball preview"
+                    width={48}
+                    height={48}
+                    className="object-cover rounded"
+                  />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
@@ -137,10 +139,13 @@ export default function Games() {
             <div className="card card--interactive">
               <div className="flex items-start space-x-4">
                 <div className="card-icon">
-                  <svg viewBox="0 0 24 24" className="w-12 h-12 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" aria-hidden>
-                    <path d="M3 6v12l6-3 6 3 6-3V6l-6 3-6-3-6 3z" />
-                    <path d="M9 3v12M15 6v12" strokeWidth="1" />
-                  </svg>
+                  <Image
+                    src="/tools/US_States.webp"
+                    alt="US states map preview"
+                    width={48}
+                    height={48}
+                    className="object-cover rounded"
+                  />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
