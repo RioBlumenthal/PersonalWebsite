@@ -85,14 +85,14 @@ export default function Games() {
             <div className="card card--interactive">
               <div className="flex items-start space-x-4">
                 <div className="card-icon flex h-12 w-12 items-center justify-center rounded-lg border-2 border-cyan-400/70 bg-cyan-950/40 text-cyan-300">
-                  <span className="text-lg font-bold">⌖</span>
+                  <span className="text-lg font-bold">Hed</span>
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
-                    Head follow
+                    3D Scene
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                    Webcam + MediaPipe face detection — a box tracks your head in real time.
+                    Webcam + MediaPipe face detection to follow your head and track it into a 3D scene.
                   </p>
                 </div>
               </div>
