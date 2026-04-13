@@ -16,8 +16,8 @@ const MODEL_URL =
   "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite";
 
 /** Radians: how far the plant tilts when your face reaches the edge of the frame. */
-const MAX_YAW = THREE.MathUtils.degToRad(21); //42
-const MAX_PITCH = THREE.MathUtils.degToRad(14); //28
+const MAX_YAW = THREE.MathUtils.degToRad(14); //42
+const MAX_PITCH = THREE.MathUtils.degToRad(5); //28
 
 function pickLargestFace(detections: Detection[]): Detection | null {
   let best: Detection | null = null;
@@ -107,9 +107,9 @@ function headToTargetRotation(
 
 type RotationRef = { current: { yaw: number; pitch: number } };
 
-/** Camera at ~[0,1,2.35] looks toward the origin; window sits on that axis between camera and plant. */
+/** Window between camera and plant; head rotation pivots around the window center (not the plant). */
 const WINDOW_Z = 1.6;
-const WINDOW_Y = 0.5;
+const WINDOW_Y = 0.6;
 
 function HeadTrackedScene({ rotationRef }: { rotationRef: RotationRef }) {
   const groupRef = useRef<THREE.Group>(null);
@@ -122,15 +122,15 @@ function HeadTrackedScene({ rotationRef }: { rotationRef: RotationRef }) {
   });
 
   return (
-    <group ref={groupRef}>
-      <group position={[0, WINDOW_Y, WINDOW_Z]}>
+    <group ref={groupRef} position={[0, WINDOW_Y, WINDOW_Z]}>
+      <Center>
+        <WindowModel scale={0.012} rotation={[0, THREE.MathUtils.degToRad(270), 0]} />
+      </Center>
+      <group position={[0, -WINDOW_Y, -WINDOW_Z]}>
         <Center>
-          <WindowModel scale={0.012} rotation={[0, THREE.MathUtils.degToRad(270), 0]} />
+          <PottedPlantModel />
         </Center>
       </group>
-      <Center>
-        <PottedPlantModel />
-      </Center>
     </group>
   );
 }
