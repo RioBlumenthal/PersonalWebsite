@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Center } from "@react-three/drei";
 import type { Detection, FaceDetector } from "@mediapipe/tasks-vision";
+import * as THREE from "three";
+import { PottedPlantModel } from "../../components/3dmodels/potted_plant";
 
 type FaceKeypoint = Detection["keypoints"][number];
 
@@ -9,6 +13,10 @@ const WASM_BASE =
   "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.34/wasm";
 const MODEL_URL =
   "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite";
+
+/** Radians: how far the plant tilts when your face reaches the edge of the frame. */
+const MAX_YAW = THREE.MathUtils.degToRad(42);
+const MAX_PITCH = THREE.MathUtils.degToRad(28);
 
 function pickLargestFace(detections: Detection[]): Detection | null {
   let best: Detection | null = null;
@@ -78,48 +86,54 @@ function eyeCenterInVideoPixels(detection: Detection, videoW: number, videoH: nu
   return { x: videoW / 2, y: videoH / 2 };
 }
 
-/** Map a point in unmirrored video pixel space to coordinates inside `container` (video uses object-fit: cover, optionally mirrored on screen). */
-function videoPixelToContainerLocal(
-  video: HTMLVideoElement,
-  container: HTMLElement,
-  vx: number,
-  vy: number,
-  mirrorX: boolean,
-): { x: number; y: number } | null {
-  const vw = video.videoWidth;
-  const vh = video.videoHeight;
-  if (!vw || !vh) return null;
-
-  const vr = video.getBoundingClientRect();
-  const cr = container.getBoundingClientRect();
-  const scale = Math.max(vr.width / vw, vr.height / vh);
-  const dispW = vw * scale;
-  const dispH = vh * scale;
-  const offsetX = (vr.width - dispW) / 2;
-  const offsetY = (vr.height - dispH) / 2;
-
-  let x = vx * scale + offsetX;
-  const y = vy * scale + offsetY;
-  if (mirrorX) x = vr.width - x;
-
+/**
+ * Map eye position in the raw camera frame to "look at me" rotations.
+ * Raw buffer is not mirrored; negate yaw so motion matches a mirrored selfie mental model.
+ */
+function headToTargetRotation(
+  eyeX: number,
+  eyeY: number,
+  videoW: number,
+  videoH: number,
+): { yaw: number; pitch: number } {
+  const nx = (eyeX / videoW - 0.5) * 2;
+  const ny = (eyeY / videoH - 0.5) * 2;
   return {
-    x: x + (vr.left - cr.left),
-    y: y + (vr.top - cr.top),
+    yaw: -nx * MAX_YAW,
+    pitch: -ny * MAX_PITCH,
   };
 }
 
+type RotationRef = { current: { yaw: number; pitch: number } };
+
+function HeadTrackedPlant({ rotationRef }: { rotationRef: RotationRef }) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame(() => {
+    const g = groupRef.current;
+    if (!g) return;
+    g.rotation.y = rotationRef.current.yaw;
+    g.rotation.x = rotationRef.current.pitch;
+  });
+
+  return (
+    <group ref={groupRef}>
+      <Center>
+        <PottedPlantModel />
+      </Center>
+    </group>
+  );
+}
+
 export default function HeadFollowClient() {
-  const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const boxRef = useRef<HTMLDivElement>(null);
+  const rotationRef = useRef({ yaw: 0, pitch: 0 });
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const video = videoRef.current;
-    const container = containerRef.current;
-    const box = boxRef.current;
-    if (!video || !container || !box) return;
+    if (!video) return;
 
     let alive = true;
     let raf = 0;
@@ -165,11 +179,9 @@ export default function HeadFollowClient() {
         setStatus("ready");
 
         let lastVideoTime = -1;
-        /** Latest target in container CSS pixels; kept when a frame has no face so the box does not snap away. */
-        let targetContainer: { x: number; y: number } | null = null;
-        let smoothed: { x: number; y: number } | null = null;
+        let targetRot = { yaw: 0, pitch: 0 };
+        const smoothedRot = { yaw: 0, pitch: 0 };
         let lastRafTime = performance.now();
-        /** Higher = snappier (1/s time constant-ish). */
         const easePerSecond = 25;
 
         const loop = (now: number) => {
@@ -182,31 +194,21 @@ export default function HeadFollowClient() {
             lastVideoTime = video.currentTime;
             const result = detector.detectForVideo(video, now);
             const face = pickLargestFace(result.detections);
-            const c = containerRef.current;
-            if (face && c) {
-              const { x, y } = eyeCenterInVideoPixels(
-                face,
-                video.videoWidth,
-                video.videoHeight,
-              );
-              const pos = videoPixelToContainerLocal(video, c, x, y, true);
-              if (pos) targetContainer = pos;
+            const vw = video.videoWidth;
+            const vh = video.videoHeight;
+            if (face && vw > 0 && vh > 0) {
+              const { x, y } = eyeCenterInVideoPixels(face, vw, vh);
+              targetRot = headToTargetRotation(x, y, vw, vh);
             }
           }
 
           const dt = Math.min((now - lastRafTime) / 1000, 0.05);
           lastRafTime = now;
-          const b = boxRef.current;
-          if (targetContainer && b) {
-            if (!smoothed) {
-              smoothed = { ...targetContainer };
-            } else {
-              const alpha = 1 - Math.exp(-easePerSecond * dt);
-              smoothed.x += (targetContainer.x - smoothed.x) * alpha;
-              smoothed.y += (targetContainer.y - smoothed.y) * alpha;
-            }
-            b.style.transform = `translate(${smoothed.x}px, ${smoothed.y}px) translate(-50%, -50%)`;
-          }
+          const alpha = 1 - Math.exp(-easePerSecond * dt);
+          smoothedRot.yaw += (targetRot.yaw - smoothedRot.yaw) * alpha;
+          smoothedRot.pitch += (targetRot.pitch - smoothedRot.pitch) * alpha;
+          rotationRef.current.yaw = smoothedRot.yaw;
+          rotationRef.current.pitch = smoothedRot.pitch;
 
           raf = requestAnimationFrame(loop);
         };
@@ -222,24 +224,29 @@ export default function HeadFollowClient() {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative h-[100dvh] w-full overflow-hidden bg-zinc-950"
-    >
+    <div className="relative h-[100dvh] w-full overflow-hidden bg-zinc-950">
       <video
         ref={videoRef}
-        className="absolute inset-0 h-full w-full object-cover"
-        style={{ transform: "scaleX(-1)" }}
+        className="pointer-events-none fixed left-0 top-0 h-px w-px opacity-0"
+        aria-hidden
         playsInline
         muted
         autoPlay
       />
 
-      <div
-        ref={boxRef}
-        className="pointer-events-none absolute left-0 top-0 h-24 w-24 rounded-xl border-4 border-cyan-400/90 bg-cyan-400/10 shadow-[0_0_24px_rgba(34,211,238,0.45)] backdrop-blur-[2px]"
-        style={{ transform: "translate(-50%, -50%)" }}
-      />
+      <div className="absolute inset-0 touch-none">
+        <Canvas
+          camera={{ position: [0, 1, 2.35], fov: 45 }}
+          gl={{ antialias: true }}
+          style={{ width: "100%", height: "100%", display: "block", touchAction: "none" }}
+        >
+          <color attach="background" args={["#0c0c0e"]} />
+          <ambientLight intensity={0.55} />
+          <directionalLight position={[4, 6, 5]} intensity={1.05} castShadow />
+          <directionalLight position={[-3, 2, -2]} intensity={0.35} />
+          <HeadTrackedPlant rotationRef={rotationRef} />
+        </Canvas>
+      </div>
 
       {status === "loading" && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm text-zinc-200">
@@ -252,7 +259,6 @@ export default function HeadFollowClient() {
           {errorMessage}
         </div>
       )}
-
     </div>
   );
 }
