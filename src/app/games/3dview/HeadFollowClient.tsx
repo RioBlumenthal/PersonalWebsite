@@ -15,8 +15,8 @@ const MODEL_URL =
   "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite";
 
 /** Radians: how far the plant tilts when your face reaches the edge of the frame. */
-const MAX_YAW = THREE.MathUtils.degToRad(42);
-const MAX_PITCH = THREE.MathUtils.degToRad(28);
+const MAX_YAW = THREE.MathUtils.degToRad(21); //42
+const MAX_PITCH = THREE.MathUtils.degToRad(14); //28
 
 function pickLargestFace(detections: Detection[]): Detection | null {
   let best: Detection | null = null;
@@ -88,7 +88,7 @@ function eyeCenterInVideoPixels(detection: Detection, videoW: number, videoH: nu
 
 /**
  * Map eye position in the raw camera frame to "look at me" rotations.
- * Raw buffer is not mirrored; negate yaw so motion matches a mirrored selfie mental model.
+ * Raw buffer is not mirrored; yaw sign chosen so horizontal turn matches the desired screen feel.
  */
 function headToTargetRotation(
   eyeX: number,
@@ -99,7 +99,7 @@ function headToTargetRotation(
   const nx = (eyeX / videoW - 0.5) * 2;
   const ny = (eyeY / videoH - 0.5) * 2;
   return {
-    yaw: -nx * MAX_YAW,
+    yaw: nx * MAX_YAW,
     pitch: -ny * MAX_PITCH,
   };
 }
@@ -182,7 +182,7 @@ export default function HeadFollowClient() {
         let targetRot = { yaw: 0, pitch: 0 };
         const smoothedRot = { yaw: 0, pitch: 0 };
         let lastRafTime = performance.now();
-        const easePerSecond = 25;
+        const easePerSecond = 15;
 
         const loop = (now: number) => {
           if (!alive || !detector) return;
