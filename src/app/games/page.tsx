@@ -153,6 +153,39 @@ export default function Games() {
             </div>
           </Link>
 
+          {/* Queens Card */}
+          <Link href="/games/queens" className="group">
+            <div className="card card--interactive">
+              <div className="flex items-start space-x-4">
+                <div className="card-icon">
+                  <div className="grid grid-cols-3 gap-0.5">
+                    {[
+                      '#f4a261', '#e76f51', '#2a9d8f',
+                      '#264653', '#e9c46a', '#8ecae6',
+                      '#219ebc', '#ffb703', '#fb8500',
+                    ].map((color, i) => (
+                      <div
+                        key={i}
+                        className="w-4 h-4 border border-gray-300 flex items-center justify-center text-[10px]"
+                        style={{ backgroundColor: color }}
+                      >
+                        {i === 4 ? '♛' : ''}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#89cff0] dark:group-hover:text-[#0077b6] transition-colors">
+                    Queens
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                    Place one queen per row, column, and colored region with no queens touching.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Link>
+
           {/* States Map Card */}
           <Link href="/games/statesmap" className="group">
             <div className="card card--interactive">
