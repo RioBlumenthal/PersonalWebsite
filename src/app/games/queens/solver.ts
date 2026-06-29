@@ -12,17 +12,17 @@ export interface GeneratedPuzzle {
 export const BOARD_SIZES: BoardSize[] = [7, 9, 11];
 
 export const REGION_COLORS = [
-  '#f4a261',
-  '#e76f51',
-  '#2a9d8f',
-  '#264653',
-  '#e9c46a',
-  '#8ecae6',
-  '#219ebc',
-  '#ffb703',
-  '#fb8500',
-  '#6a994e',
-  '#9b5de5',
+  '#fcd5b0',
+  '#f8b4b4',
+  '#b8e6dc',
+  '#b8cdd8',
+  '#f5e6a8',
+  '#c8e8f5',
+  '#a8d8ea',
+  '#ffe4a3',
+  '#ffc899',
+  '#c5ddb8',
+  '#d4c0f0',
 ];
 
 function shuffle<T>(array: T[]): T[] {

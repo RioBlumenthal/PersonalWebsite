@@ -14,6 +14,37 @@ import {
   validatePlayerSolution,
 } from "./solver";
 
+const THIN_BORDER = "1px";
+const THICK_BORDER = "2.5px";
+
+function getCellBorderStyle(
+  regions: GeneratedPuzzle["regions"],
+  row: number,
+  col: number,
+  size: number
+): React.CSSProperties {
+  const regionId = regions[row][col];
+
+  return {
+    borderStyle: "solid",
+    borderColor: "#000",
+    borderTopWidth: row === 0 ? THIN_BORDER : "0",
+    borderLeftWidth: col === 0 ? THIN_BORDER : "0",
+    borderBottomWidth:
+      row === size - 1
+        ? THIN_BORDER
+        : regions[row + 1][col] !== regionId
+          ? THICK_BORDER
+          : THIN_BORDER,
+    borderRightWidth:
+      col === size - 1
+        ? THIN_BORDER
+        : regions[row][col + 1] !== regionId
+          ? THICK_BORDER
+          : THIN_BORDER,
+  };
+}
+
 const QueensGame: React.FC = () => {
   const [boardSize, setBoardSize] = useState<BoardSize>(7);
   const [puzzle, setPuzzle] = useState<GeneratedPuzzle | null>(null);
@@ -169,7 +200,7 @@ const QueensGame: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-lg p-2 sm:p-6 w-fit mx-auto">
           <div
-            className="inline-grid gap-0.5 sm:gap-1"
+            className="inline-grid gap-0"
             style={{
               gridTemplateColumns: `repeat(${puzzle.size}, minmax(0, 1fr))`,
             }}
@@ -185,11 +216,19 @@ const QueensGame: React.FC = () => {
                     onClick={() => handleCellClick(rowIndex, colIndex)}
                     className={`
                       ${cellSizeClass}
-                      border border-gray-700/30 font-bold transition-all duration-150
+                      font-bold transition-all duration-150
                       flex items-center justify-center
-                      ${isWin ? "cursor-default" : "cursor-pointer hover:brightness-95 hover:scale-105"}
+                      ${isWin ? "cursor-default" : "cursor-pointer hover:brightness-95 hover:scale-[1.02]"}
                     `}
-                    style={{ backgroundColor: regionColor }}
+                    style={{
+                      backgroundColor: regionColor,
+                      ...getCellBorderStyle(
+                        puzzle.regions,
+                        rowIndex,
+                        colIndex,
+                        puzzle.size
+                      ),
+                    }}
                     aria-label={`Row ${rowIndex + 1}, column ${colIndex + 1}`}
                   >
                     {cell === "x" ? (
