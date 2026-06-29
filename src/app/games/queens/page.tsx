@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BOARD_SIZES,
   BoardSize,
@@ -61,6 +61,9 @@ const QueensGame: React.FC = () => {
   const [autofillClaims, setAutofillClaims] = useState<QueenAutofillClaims>(
     () => new Map()
   );
+  const isPointerDown = useRef(false);
+  const hasDragged = useRef(false);
+  const startCell = useRef<[number, number] | null>(null);
 
   const checkWinCondition = (nextBoard: PlayerBoard) => {
     if (!puzzle) return;
@@ -108,6 +111,40 @@ const QueensGame: React.FC = () => {
   useEffect(() => {
     startNewGame(boardSize);
   }, [boardSize]);
+
+  useEffect(() => {
+    const handlePointerUp = () => {
+      isPointerDown.current = false;
+      startCell.current = null;
+    };
+
+    window.addEventListener("pointerup", handlePointerUp);
+    return () => window.removeEventListener("pointerup", handlePointerUp);
+  }, []);
+
+  const markCellAsX = (row: number, col: number) => {
+    if (!puzzle || isWin) return;
+
+    const cellKey = toCellKey(row, col);
+
+    setBoard((prev) => {
+      if (prev[row][col] !== "empty") return prev;
+
+      const nextBoard = prev.map((boardRow) => [...boardRow]);
+      nextBoard[row][col] = "x";
+      return nextBoard;
+    });
+
+    setManualMarks((prev) => {
+      if (prev.has(cellKey)) return prev;
+
+      const nextManualMarks = new Set(prev);
+      nextManualMarks.add(cellKey);
+      return nextManualMarks;
+    });
+
+    setStatusMessage(null);
+  };
 
   const handleCellClick = (row: number, col: number) => {
     if (!puzzle || isWin) return;
@@ -164,6 +201,37 @@ const QueensGame: React.FC = () => {
     checkWinCondition(finalBoard);
   };
 
+  const handlePointerDown = (row: number, col: number) => {
+    if (!puzzle || isWin) return;
+
+    isPointerDown.current = true;
+    hasDragged.current = false;
+    startCell.current = [row, col];
+  };
+
+  const handlePointerEnter = (row: number, col: number) => {
+    if (!isPointerDown.current || !puzzle || isWin) return;
+
+    if (!hasDragged.current && startCell.current) {
+      hasDragged.current = true;
+      markCellAsX(startCell.current[0], startCell.current[1]);
+    }
+
+    markCellAsX(row, col);
+  };
+
+  const handlePointerUp = (row: number, col: number) => {
+    if (!puzzle || isWin) return;
+
+    if (!hasDragged.current) {
+      handleCellClick(row, col);
+    }
+
+    isPointerDown.current = false;
+    hasDragged.current = false;
+    startCell.current = null;
+  };
+
   const handleClosePopup = () => {
     setShowPopup(false);
   };
@@ -193,7 +261,7 @@ const QueensGame: React.FC = () => {
           <p className="text-sm sm:text-base text-gray-600 px-2">
             Place one queen in each row, column, and colored region. Queens
             cannot touch, even diagonally. Click cells to cycle: empty → X →
-            queen.
+            queen. Drag across cells to mark multiple X&apos;s.
           </p>
         </div>
 
@@ -259,9 +327,9 @@ const QueensGame: React.FC = () => {
           ))}
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-2 sm:p-6 w-fit mx-auto">
+        <div className="bg-white rounded-lg shadow-lg p-2 sm:p-6 w-fit mx-auto select-none">
           <div
-            className="inline-grid gap-0"
+            className="inline-grid gap-0 touch-none"
             style={{
               gridTemplateColumns: `repeat(${puzzle.size}, minmax(0, 1fr))`,
             }}
@@ -274,7 +342,12 @@ const QueensGame: React.FC = () => {
                 return (
                   <button
                     key={`${rowIndex}-${colIndex}`}
-                    onClick={() => handleCellClick(rowIndex, colIndex)}
+                    onPointerDown={(event) => {
+                      event.preventDefault();
+                      handlePointerDown(rowIndex, colIndex);
+                    }}
+                    onPointerEnter={() => handlePointerEnter(rowIndex, colIndex)}
+                    onPointerUp={() => handlePointerUp(rowIndex, colIndex)}
                     className={`
                       ${cellSizeClass}
                       font-bold transition-all duration-150
