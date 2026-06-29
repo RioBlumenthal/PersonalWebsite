@@ -151,6 +151,108 @@ export function countQueens(board: PlayerBoard): number {
   );
 }
 
+export type CellKey = string;
+export type QueenAutofillClaims = Map<CellKey, Set<CellKey>>;
+
+export function toCellKey(row: number, col: number): CellKey {
+  return `${row},${col}`;
+}
+
+export function getQueenAutofillCells(
+  queenRow: number,
+  queenCol: number,
+  size: number
+): [number, number][] {
+  const cells: [number, number][] = [];
+
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      if (row === queenRow && col === queenCol) continue;
+
+      const sameRow = row === queenRow;
+      const sameCol = col === queenCol;
+      const touching =
+        Math.abs(row - queenRow) <= 1 && Math.abs(col - queenCol) <= 1;
+
+      if (sameRow || sameCol || touching) {
+        cells.push([row, col]);
+      }
+    }
+  }
+
+  return cells;
+}
+
+export function applyQueenAutofill(
+  board: PlayerBoard,
+  queenRow: number,
+  queenCol: number,
+  claims: QueenAutofillClaims
+): { board: PlayerBoard; claims: QueenAutofillClaims } {
+  const next = board.map((row) => [...row]);
+  const nextClaims = new Map(
+    [...claims.entries()].map(([key, queens]) => [key, new Set(queens)])
+  );
+  const queenKey = toCellKey(queenRow, queenCol);
+
+  for (const [row, col] of getQueenAutofillCells(
+    queenRow,
+    queenCol,
+    board.length
+  )) {
+    if (next[row][col] === 'queen') continue;
+
+    const key = toCellKey(row, col);
+    if (!nextClaims.has(key)) {
+      nextClaims.set(key, new Set());
+    }
+    nextClaims.get(key)!.add(queenKey);
+    next[row][col] = 'x';
+  }
+
+  return { board: next, claims: nextClaims };
+}
+
+export function removeQueenAutofill(
+  board: PlayerBoard,
+  queenRow: number,
+  queenCol: number,
+  manualMarks: Set<CellKey>,
+  claims: QueenAutofillClaims
+): { board: PlayerBoard; claims: QueenAutofillClaims } {
+  const next = board.map((row) => [...row]);
+  const nextClaims = new Map(
+    [...claims.entries()].map(([key, queens]) => [key, new Set(queens)])
+  );
+  const queenKey = toCellKey(queenRow, queenCol);
+
+  for (const [row, col] of getQueenAutofillCells(
+    queenRow,
+    queenCol,
+    board.length
+  )) {
+    const key = toCellKey(row, col);
+    const cellClaims = nextClaims.get(key);
+
+    if (cellClaims) {
+      cellClaims.delete(queenKey);
+      if (cellClaims.size === 0) {
+        nextClaims.delete(key);
+      }
+    }
+
+    if (
+      next[row][col] === 'x' &&
+      !manualMarks.has(key) &&
+      !nextClaims.has(key)
+    ) {
+      next[row][col] = 'empty';
+    }
+  }
+
+  return { board: next, claims: nextClaims };
+}
+
 export function isSolutionPosition(
   solution: [number, number][],
   row: number,

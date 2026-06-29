@@ -11,6 +11,10 @@ import {
   countQueens,
   createEmptyBoard,
   generatePuzzle,
+  applyQueenAutofill,
+  removeQueenAutofill,
+  toCellKey,
+  QueenAutofillClaims,
   validatePlayerSolution,
 } from "./solver";
 
@@ -52,38 +56,14 @@ const QueensGame: React.FC = () => {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isWin, setIsWin] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [autofill, setAutofill] = useState(false);
+  const [manualMarks, setManualMarks] = useState<Set<string>>(() => new Set());
+  const [autofillClaims, setAutofillClaims] = useState<QueenAutofillClaims>(
+    () => new Map()
+  );
 
-  const startNewGame = (size: BoardSize) => {
-    const nextPuzzle = generatePuzzle(size);
-    setPuzzle(nextPuzzle);
-    setBoard(createEmptyBoard(size));
-    setStatusMessage(null);
-    setIsWin(false);
-    setShowPopup(false);
-  };
-
-  useEffect(() => {
-    startNewGame(boardSize);
-  }, [boardSize]);
-
-  const handleCellClick = (row: number, col: number) => {
-    if (!puzzle || isWin) return;
-
-    const nextBoard = board.map((boardRow) => [...boardRow]);
-    const current = nextBoard[row][col];
-
-    let nextState: CellState;
-    if (current === "empty") {
-      nextState = "x";
-    } else if (current === "x") {
-      nextState = "queen";
-    } else {
-      nextState = "empty";
-    }
-
-    nextBoard[row][col] = nextState;
-    setBoard(nextBoard);
-    setStatusMessage(null);
+  const checkWinCondition = (nextBoard: PlayerBoard) => {
+    if (!puzzle) return;
 
     if (countQueens(nextBoard) === puzzle.size) {
       const result = validatePlayerSolution(
@@ -101,6 +81,80 @@ const QueensGame: React.FC = () => {
         setStatusMessage(result.message);
       }
     }
+  };
+
+  const startNewGame = (size: BoardSize) => {
+    const nextPuzzle = generatePuzzle(size);
+    setPuzzle(nextPuzzle);
+    setBoard(createEmptyBoard(size));
+    setManualMarks(new Set());
+    setAutofillClaims(new Map());
+    setStatusMessage(null);
+    setIsWin(false);
+    setShowPopup(false);
+  };
+
+  const handleClear = () => {
+    if (!puzzle) return;
+
+    setBoard(createEmptyBoard(puzzle.size));
+    setManualMarks(new Set());
+    setAutofillClaims(new Map());
+    setStatusMessage(null);
+    setIsWin(false);
+    setShowPopup(false);
+  };
+
+  useEffect(() => {
+    startNewGame(boardSize);
+  }, [boardSize]);
+
+  const handleCellClick = (row: number, col: number) => {
+    if (!puzzle || isWin) return;
+
+    const nextBoard = board.map((boardRow) => [...boardRow]);
+    const current = nextBoard[row][col];
+
+    const cellKey = toCellKey(row, col);
+    const nextManualMarks = new Set(manualMarks);
+
+    let nextState: CellState;
+    if (current === "empty") {
+      nextState = "x";
+      nextManualMarks.add(cellKey);
+    } else if (current === "x") {
+      nextState = "queen";
+      nextManualMarks.delete(cellKey);
+    } else {
+      nextState = "empty";
+    }
+
+    nextBoard[row][col] = nextState;
+
+    let finalBoard = nextBoard;
+    let finalClaims = autofillClaims;
+
+    if (current === "queen" && nextState === "empty") {
+      const result = removeQueenAutofill(
+        nextBoard,
+        row,
+        col,
+        nextManualMarks,
+        autofillClaims
+      );
+      finalBoard = result.board;
+      finalClaims = result.claims;
+    } else if (autofill && nextState === "queen") {
+      const result = applyQueenAutofill(nextBoard, row, col, autofillClaims);
+      finalBoard = result.board;
+      finalClaims = result.claims;
+    }
+
+    setManualMarks(nextManualMarks);
+    setAutofillClaims(finalClaims);
+    setBoard(finalBoard);
+    setStatusMessage(null);
+    checkWinCondition(finalBoard);
   };
 
   const handleClosePopup = () => {
@@ -259,12 +313,31 @@ const QueensGame: React.FC = () => {
         </div>
 
         <div className="mt-4 sm:mt-6 text-center">
-          <button
-            onClick={() => startNewGame(boardSize)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold transition-colors text-sm sm:text-base"
-          >
-            New Game
-          </button>
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex gap-2 sm:gap-4">
+              <button
+                onClick={() => startNewGame(boardSize)}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold transition-colors text-sm sm:text-base"
+              >
+                New Game
+              </button>
+              <button
+                onClick={handleClear}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold transition-colors text-sm sm:text-base"
+              >
+                Clear
+              </button>
+            </div>
+            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={autofill}
+                onChange={(e) => setAutofill(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+              />
+              Autofill
+            </label>
+          </div>
         </div>
       </div>
     </div>
