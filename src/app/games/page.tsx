@@ -160,9 +160,9 @@ export default function Games() {
                 <div className="card-icon">
                   <div className="grid grid-cols-3 gap-0.5">
                     {[
-                      '#fcd5b0', '#f8b4b4', '#b8e6dc',
-                      '#b8cdd8', '#f5e6a8', '#c8e8f5',
-                      '#a8d8ea', '#ffe4a3', '#ffc899',
+                      '#f8a8a8', '#f5b890', '#e8c858',
+                      '#ffb878', '#90d8b8', '#88c8e8',
+                      '#98a8e0', '#c0a8e8', '#e8a8d0',
                     ].map((color, i) => (
                       <div
                         key={i}

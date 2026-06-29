@@ -19,7 +19,7 @@ export const REGION_COLORS = [
   '#f5e6a8',
   '#c8e8f5',
   '#a8d8ea',
-  '#ffe4a3',
+  '#b3ffb3',
   '#ffc899',
   '#c5ddb8',
   '#d4c0f0',
