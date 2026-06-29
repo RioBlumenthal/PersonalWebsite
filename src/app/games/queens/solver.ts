@@ -81,67 +81,156 @@ function findRandomQueenPlacement(size: number): [number, number][] | null {
   return backtrack(0) ? queens : null;
 }
 
-function growRegions(size: number, queens: [number, number][]): RegionGrid {
+function growRegions(size: number, queens: [number, number][]): RegionGrid | null {
   const regions: RegionGrid = Array(size)
     .fill(null)
     .map(() => Array(size).fill(-1));
 
-  const queues: [number, number][][] = queens.map(([row, col], regionId) => {
+  for (let regionId = 0; regionId < queens.length; regionId++) {
+    const [row, col] = queens[regionId];
     regions[row][col] = regionId;
-    return [[row, col]];
-  });
+  }
 
+  const regionSizes = Array(size).fill(1);
   let unassigned = size * size - queens.length;
-  let regionIndex = 0;
 
   while (unassigned > 0) {
-    const nextQueue: [number, number][] = [];
-    const directions: [number, number][] = [
-      [0, 1],
-      [0, -1],
-      [1, 0],
-      [-1, 0],
-    ];
+    const candidates: {
+      regionId: number;
+      row: number;
+      col: number;
+      priority: number;
+    }[] = [];
 
-    for (const [row, col] of queues[regionIndex]) {
-      for (const [dr, dc] of directions) {
-        const nr = row + dr;
-        const nc = col + dc;
+    const sizeTwoCount = regionSizes.filter((regionSize) => regionSize === 2).length;
+    const sizeOneCount = regionSizes.filter((regionSize) => regionSize === 1).length;
 
-        if (
-          nr >= 0 &&
-          nr < size &&
-          nc >= 0 &&
-          nc < size &&
-          regions[nr][nc] === -1
-        ) {
-          regions[nr][nc] = regionIndex;
-          nextQueue.push([nr, nc]);
-          unassigned--;
+    for (let regionId = 0; regionId < queens.length; regionId++) {
+      const [queenRow, queenCol] = queens[regionId];
+      const currentSize = regionSizes[regionId];
+
+      if (currentSize === 1 && sizeTwoCount >= 1) {
+        continue;
+      }
+
+      for (let row = 0; row < size; row++) {
+        for (let col = 0; col < size; col++) {
+          if (regions[row][col] !== regionId) continue;
+
+          for (const [dr, dc] of [
+            [0, 1],
+            [0, -1],
+            [1, 0],
+            [-1, 0],
+          ] as [number, number][]) {
+            const nr = row + dr;
+            const nc = col + dc;
+
+            if (
+              nr < 0 ||
+              nr >= size ||
+              nc < 0 ||
+              nc >= size ||
+              regions[nr][nc] !== -1
+            ) {
+              continue;
+            }
+
+            let priority = nr === queenRow || nc === queenCol ? 1 : 0;
+
+            if (currentSize === 2 && sizeOneCount > 0) {
+              priority -= 3;
+            } else if (currentSize === 1 && sizeTwoCount === 0) {
+              priority -= 2;
+            } else if (currentSize === 2 && sizeTwoCount === 1) {
+              priority -= 1;
+            }
+
+            candidates.push({
+              regionId,
+              row: nr,
+              col: nc,
+              priority,
+            });
+          }
         }
       }
     }
 
-    queues[regionIndex] = shuffle(nextQueue);
-    regionIndex = (regionIndex + 1) % size;
+    if (candidates.length === 0) {
+      return null;
+    }
+
+    const minPriority = Math.min(...candidates.map((candidate) => candidate.priority));
+    const bestCandidates = shuffle(
+      candidates.filter((candidate) => candidate.priority === minPriority)
+    );
+    const chosen = bestCandidates[0];
+
+    regions[chosen.row][chosen.col] = chosen.regionId;
+    regionSizes[chosen.regionId]++;
+    unassigned--;
   }
 
-  return regions;
+  return hasValidRegionSizes(regions, size) ? regions : null;
+}
+
+function getRegionSizes(regions: RegionGrid, size: number): number[] {
+  const sizes = Array(size).fill(0);
+
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      sizes[regions[row][col]]++;
+    }
+  }
+
+  return sizes;
+}
+
+function hasValidRegionSizes(regions: RegionGrid, size: number): boolean {
+  const sizes = getRegionSizes(regions, size);
+  let regionsOfSizeTwo = 0;
+
+  for (const regionSize of sizes) {
+    if (regionSize === 1) {
+      return false;
+    }
+
+    if (regionSize === 2) {
+      regionsOfSizeTwo++;
+      if (regionsOfSizeTwo > 1) {
+        return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 export function generatePuzzle(size: BoardSize): GeneratedPuzzle {
-  for (let attempt = 0; attempt < 100; attempt++) {
+  const maxAttempts = size === 7 ? 2000 : size === 9 ? 5000 : 10000;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const queens = findRandomQueenPlacement(size);
     if (!queens) continue;
 
-    return {
-      size,
-      regions: growRegions(size, queens),
-      solution: queens,
-    };
+    const regions = growRegions(size, queens);
+    if (!regions || !hasValidRegionSizes(regions, size)) continue;
+
+    const solutions = enumeratePuzzleSolutions(regions, size, 2);
+
+    if (solutions.length === 1) {
+      return {
+        size,
+        regions,
+        solution: solutions[0],
+      };
+    }
   }
 
-  throw new Error(`Failed to generate a ${size}x${size} Queens puzzle`);
+  throw new Error(
+    `Failed to generate a ${size}x${size} Queens puzzle with a unique solution`
+  );
 }
 
 export function countQueens(board: PlayerBoard): number {
@@ -343,7 +432,12 @@ export function validatePlayerSolution(
   return { valid: true, message: 'You solved the puzzle!' };
 }
 
-export function solvePuzzle(regions: RegionGrid, size: number): [number, number][] | null {
+function enumeratePuzzleSolutions(
+  regions: RegionGrid,
+  size: number,
+  maxSolutions = 2
+): [number, number][][] {
+  const solutions: [number, number][][] = [];
   const queens: [number, number][] = [];
   const usedCols = new Set<number>();
   const usedRegions = new Set<number>();
@@ -359,8 +453,13 @@ export function solvePuzzle(regions: RegionGrid, size: number): [number, number]
     return true;
   }
 
-  function backtrack(row: number): boolean {
-    if (row === size) return true;
+  function backtrack(row: number): void {
+    if (solutions.length >= maxSolutions) return;
+
+    if (row === size) {
+      solutions.push(queens.map(([solutionRow, solutionCol]) => [solutionRow, solutionCol]));
+      return;
+    }
 
     for (let col = 0; col < size; col++) {
       if (!canPlace(row, col)) continue;
@@ -369,15 +468,25 @@ export function solvePuzzle(regions: RegionGrid, size: number): [number, number]
       usedCols.add(col);
       usedRegions.add(regions[row][col]);
 
-      if (backtrack(row + 1)) return true;
+      backtrack(row + 1);
 
       queens.pop();
       usedCols.delete(col);
       usedRegions.delete(regions[row][col]);
-    }
 
-    return false;
+      if (solutions.length >= maxSolutions) return;
+    }
   }
 
-  return backtrack(0) ? queens : null;
+  backtrack(0);
+  return solutions;
+}
+
+export function hasUniqueSolution(regions: RegionGrid, size: number): boolean {
+  return enumeratePuzzleSolutions(regions, size, 2).length === 1;
+}
+
+export function solvePuzzle(regions: RegionGrid, size: number): [number, number][] | null {
+  const solutions = enumeratePuzzleSolutions(regions, size, 1);
+  return solutions[0] ?? null;
 }
