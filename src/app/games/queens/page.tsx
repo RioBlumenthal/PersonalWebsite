@@ -14,6 +14,7 @@ import {
   applyQueenAutofill,
   removeQueenAutofill,
   toCellKey,
+  isQueenPlacementValid,
   QueenAutofillClaims,
   validatePlayerSolution,
 } from "./solver";
@@ -61,6 +62,10 @@ const QueensGame: React.FC = () => {
   const [autofillClaims, setAutofillClaims] = useState<QueenAutofillClaims>(
     () => new Map()
   );
+  const [errorCells, setErrorCells] = useState<boolean[][]>([]);
+  const [errorTimers, setErrorTimers] = useState<Map<string, NodeJS.Timeout>>(
+    new Map()
+  );
   const isPointerDown = useRef(false);
   const hasDragged = useRef(false);
   const startCell = useRef<[number, number] | null>(null);
@@ -92,6 +97,9 @@ const QueensGame: React.FC = () => {
     setBoard(createEmptyBoard(size));
     setManualMarks(new Set());
     setAutofillClaims(new Map());
+    setErrorCells(createEmptyBoard(size).map((row) => row.map(() => false)));
+    errorTimers.forEach((timer) => clearTimeout(timer));
+    setErrorTimers(new Map());
     setStatusMessage(null);
     setIsWin(false);
     setShowPopup(false);
@@ -103,9 +111,72 @@ const QueensGame: React.FC = () => {
     setBoard(createEmptyBoard(puzzle.size));
     setManualMarks(new Set());
     setAutofillClaims(new Map());
+    setErrorCells(createEmptyBoard(puzzle.size).map((row) => row.map(() => false)));
+    errorTimers.forEach((timer) => clearTimeout(timer));
+    setErrorTimers(new Map());
     setStatusMessage(null);
     setIsWin(false);
     setShowPopup(false);
+  };
+
+  const clearErrorTimer = (row: number, col: number) => {
+    const cellKey = `${row}-${col}`;
+    const existingTimer = errorTimers.get(cellKey);
+    if (existingTimer) {
+      clearTimeout(existingTimer);
+      const nextTimers = new Map(errorTimers);
+      nextTimers.delete(cellKey);
+      setErrorTimers(nextTimers);
+    }
+  };
+
+  const clearCellError = (row: number, col: number) => {
+    clearErrorTimer(row, col);
+    setErrorCells((prev) => {
+      if (!prev[row]?.[col]) return prev;
+      const next = prev.map((boardRow) => [...boardRow]);
+      next[row][col] = false;
+      return next;
+    });
+  };
+
+  const scheduleQueenValidation = (row: number, col: number) => {
+    if (!puzzle) return;
+
+    clearErrorTimer(row, col);
+
+    const cellKey = `${row}-${col}`;
+    const timer = setTimeout(() => {
+      setBoard((currentBoard) => {
+        if (currentBoard[row][col] !== "queen") {
+          return currentBoard;
+        }
+
+        if (isQueenPlacementValid(currentBoard, puzzle.regions, row, col)) {
+          return currentBoard;
+        }
+
+        setErrorCells((prev) => {
+          const next = prev.map((boardRow) => [...boardRow]);
+          next[row][col] = true;
+          return next;
+        });
+
+        return currentBoard;
+      });
+
+      setErrorTimers((prev) => {
+        const next = new Map(prev);
+        next.delete(cellKey);
+        return next;
+      });
+    }, 1000);
+
+    setErrorTimers((prev) => {
+      const next = new Map(prev);
+      next.set(cellKey, timer);
+      return next;
+    });
   };
 
   useEffect(() => {
@@ -121,6 +192,12 @@ const QueensGame: React.FC = () => {
     window.addEventListener("pointerup", handlePointerUp);
     return () => window.removeEventListener("pointerup", handlePointerUp);
   }, []);
+
+  useEffect(() => {
+    return () => {
+      errorTimers.forEach((timer) => clearTimeout(timer));
+    };
+  }, [errorTimers]);
 
   const markCellAsX = (row: number, col: number) => {
     if (!puzzle || isWin) return;
@@ -149,6 +226,8 @@ const QueensGame: React.FC = () => {
   const handleCellClick = (row: number, col: number) => {
     if (!puzzle || isWin) return;
 
+    clearCellError(row, col);
+
     const nextBoard = board.map((boardRow) => [...boardRow]);
     const current = nextBoard[row][col];
 
@@ -172,6 +251,7 @@ const QueensGame: React.FC = () => {
     let finalClaims = autofillClaims;
 
     if (current === "queen" && nextState === "empty") {
+      clearErrorTimer(row, col);
       const result = removeQueenAutofill(
         nextBoard,
         row,
@@ -198,6 +278,11 @@ const QueensGame: React.FC = () => {
     setAutofillClaims(finalClaims);
     setBoard(finalBoard);
     setStatusMessage(null);
+
+    if (current === "x" && nextState === "queen") {
+      scheduleQueenValidation(row, col);
+    }
+
     checkWinCondition(finalBoard);
   };
 
@@ -338,6 +423,7 @@ const QueensGame: React.FC = () => {
               row.map((cell, colIndex) => {
                 const regionId = puzzle.regions[rowIndex][colIndex];
                 const regionColor = REGION_COLORS[regionId % REGION_COLORS.length];
+                const isError = errorCells[rowIndex]?.[colIndex];
 
                 return (
                   <button
@@ -351,7 +437,7 @@ const QueensGame: React.FC = () => {
                     className={`
                       ${cellSizeClass}
                       font-bold transition-all duration-150
-                      flex items-center justify-center
+                      flex items-center justify-center relative
                       ${isWin ? "cursor-default" : "cursor-pointer hover:brightness-95 hover:scale-[1.02]"}
                     `}
                     style={{
@@ -370,6 +456,13 @@ const QueensGame: React.FC = () => {
                     ) : cell === "queen" ? (
                       <span className="text-xl sm:text-2xl leading-none">♛</span>
                     ) : null}
+                    {isError && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-red-200/70">
+                        <span className="text-red-600 text-2xl sm:text-4xl font-bold leading-none">
+                          ×
+                        </span>
+                      </div>
+                    )}
                   </button>
                 );
               })

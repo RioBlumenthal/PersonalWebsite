@@ -357,6 +357,29 @@ export function isSolutionPosition(
   return solution.some(([qr, qc]) => qr === row && qc === col);
 }
 
+export function isQueenPlacementValid(
+  board: PlayerBoard,
+  regions: RegionGrid,
+  row: number,
+  col: number
+): boolean {
+  const region = regions[row][col];
+
+  for (let otherRow = 0; otherRow < board.length; otherRow++) {
+    for (let otherCol = 0; otherCol < board[otherRow].length; otherCol++) {
+      if (otherRow === row && otherCol === col) continue;
+      if (board[otherRow][otherCol] !== 'queen') continue;
+
+      if (otherRow === row) return false;
+      if (otherCol === col) return false;
+      if (regions[otherRow][otherCol] === region) return false;
+      if (queensAreAdjacent(row, col, otherRow, otherCol)) return false;
+    }
+  }
+
+  return true;
+}
+
 export function validatePlayerSolution(
   board: PlayerBoard,
   regions: RegionGrid,
