@@ -161,9 +161,11 @@ export function toCellKey(row: number, col: number): CellKey {
 export function getQueenAutofillCells(
   queenRow: number,
   queenCol: number,
-  size: number
+  size: number,
+  regions: RegionGrid
 ): [number, number][] {
   const cells: [number, number][] = [];
+  const queenRegion = regions[queenRow][queenCol];
 
   for (let row = 0; row < size; row++) {
     for (let col = 0; col < size; col++) {
@@ -173,8 +175,9 @@ export function getQueenAutofillCells(
       const sameCol = col === queenCol;
       const touching =
         Math.abs(row - queenRow) <= 1 && Math.abs(col - queenCol) <= 1;
+      const sameRegion = regions[row][col] === queenRegion;
 
-      if (sameRow || sameCol || touching) {
+      if (sameRow || sameCol || touching || sameRegion) {
         cells.push([row, col]);
       }
     }
@@ -187,6 +190,7 @@ export function applyQueenAutofill(
   board: PlayerBoard,
   queenRow: number,
   queenCol: number,
+  regions: RegionGrid,
   claims: QueenAutofillClaims
 ): { board: PlayerBoard; claims: QueenAutofillClaims } {
   const next = board.map((row) => [...row]);
@@ -198,7 +202,8 @@ export function applyQueenAutofill(
   for (const [row, col] of getQueenAutofillCells(
     queenRow,
     queenCol,
-    board.length
+    board.length,
+    regions
   )) {
     if (next[row][col] === 'queen') continue;
 
@@ -217,6 +222,7 @@ export function removeQueenAutofill(
   board: PlayerBoard,
   queenRow: number,
   queenCol: number,
+  regions: RegionGrid,
   manualMarks: Set<CellKey>,
   claims: QueenAutofillClaims
 ): { board: PlayerBoard; claims: QueenAutofillClaims } {
@@ -229,7 +235,8 @@ export function removeQueenAutofill(
   for (const [row, col] of getQueenAutofillCells(
     queenRow,
     queenCol,
-    board.length
+    board.length,
+    regions
   )) {
     const key = toCellKey(row, col);
     const cellClaims = nextClaims.get(key);

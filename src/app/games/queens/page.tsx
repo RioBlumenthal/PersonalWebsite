@@ -139,13 +139,20 @@ const QueensGame: React.FC = () => {
         nextBoard,
         row,
         col,
+        puzzle.regions,
         nextManualMarks,
         autofillClaims
       );
       finalBoard = result.board;
       finalClaims = result.claims;
     } else if (autofill && nextState === "queen") {
-      const result = applyQueenAutofill(nextBoard, row, col, autofillClaims);
+      const result = applyQueenAutofill(
+        nextBoard,
+        row,
+        col,
+        puzzle.regions,
+        autofillClaims
+      );
       finalBoard = result.board;
       finalClaims = result.claims;
     }
