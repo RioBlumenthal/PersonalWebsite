@@ -21,6 +21,35 @@ import {
 
 const THIN_BORDER = "1px";
 const THICK_BORDER = "2.5px";
+const DRAG_THRESHOLD_PX = 6;
+
+function QueenIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M3 18h18v2H3v-2zm2.5-11 2.5 4 3-7 3 7 2.5-4L19 16H5l.5-9z" />
+    </svg>
+  );
+}
+
+function getCellCoordsFromPoint(
+  clientX: number,
+  clientY: number
+): [number, number] | null {
+  const element = document.elementFromPoint(clientX, clientY);
+  const cell = element?.closest<HTMLElement>("[data-cell-row]");
+  if (!cell) return null;
+
+  const row = Number(cell.dataset.cellRow);
+  const col = Number(cell.dataset.cellCol);
+  if (Number.isNaN(row) || Number.isNaN(col)) return null;
+
+  return [row, col];
+}
 
 function getCellBorderStyle(
   regions: GeneratedPuzzle["regions"],
@@ -66,9 +95,13 @@ const QueensGame: React.FC = () => {
   const [errorTimers, setErrorTimers] = useState<Map<string, NodeJS.Timeout>>(
     new Map()
   );
+  const gridRef = useRef<HTMLDivElement>(null);
   const isPointerDown = useRef(false);
   const hasDragged = useRef(false);
   const startCell = useRef<[number, number] | null>(null);
+  const activePointerId = useRef<number | null>(null);
+  const lastMarkedCell = useRef<string | null>(null);
+  const pointerStartPosition = useRef<{ x: number; y: number } | null>(null);
 
   const checkWinCondition = (nextBoard: PlayerBoard) => {
     if (!puzzle) return;
@@ -184,16 +217,6 @@ const QueensGame: React.FC = () => {
   }, [boardSize]);
 
   useEffect(() => {
-    const handlePointerUp = () => {
-      isPointerDown.current = false;
-      startCell.current = null;
-    };
-
-    window.addEventListener("pointerup", handlePointerUp);
-    return () => window.removeEventListener("pointerup", handlePointerUp);
-  }, []);
-
-  useEffect(() => {
     return () => {
       errorTimers.forEach((timer) => clearTimeout(timer));
     };
@@ -286,35 +309,96 @@ const QueensGame: React.FC = () => {
     checkWinCondition(finalBoard);
   };
 
-  const handlePointerDown = (row: number, col: number) => {
-    if (!puzzle || isWin) return;
+  const markDragCell = (row: number, col: number) => {
+    const cellKey = `${row}-${col}`;
+    if (lastMarkedCell.current === cellKey) return;
 
-    isPointerDown.current = true;
-    hasDragged.current = false;
-    startCell.current = [row, col];
-  };
-
-  const handlePointerEnter = (row: number, col: number) => {
-    if (!isPointerDown.current || !puzzle || isWin) return;
-
-    if (!hasDragged.current && startCell.current) {
-      hasDragged.current = true;
-      markCellAsX(startCell.current[0], startCell.current[1]);
-    }
-
+    lastMarkedCell.current = cellKey;
     markCellAsX(row, col);
   };
 
-  const handlePointerUp = (row: number, col: number) => {
+  const processDragAt = (clientX: number, clientY: number) => {
+    if (!isPointerDown.current || !puzzle || isWin) return;
+
+    if (!hasDragged.current && pointerStartPosition.current) {
+      const dx = clientX - pointerStartPosition.current.x;
+      const dy = clientY - pointerStartPosition.current.y;
+      if (Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return;
+    }
+
+    const coords = getCellCoordsFromPoint(clientX, clientY);
+    if (!coords) return;
+
+    const [row, col] = coords;
+
+    if (!hasDragged.current && startCell.current) {
+      hasDragged.current = true;
+      markDragCell(startCell.current[0], startCell.current[1]);
+    }
+
+    markDragCell(row, col);
+  };
+
+  const finishPointerInteraction = () => {
     if (!puzzle || isWin) return;
 
-    if (!hasDragged.current) {
-      handleCellClick(row, col);
+    if (!hasDragged.current && startCell.current) {
+      handleCellClick(startCell.current[0], startCell.current[1]);
     }
 
     isPointerDown.current = false;
     hasDragged.current = false;
     startCell.current = null;
+    lastMarkedCell.current = null;
+    activePointerId.current = null;
+    pointerStartPosition.current = null;
+  };
+
+  const handlePointerDown = (
+    row: number,
+    col: number,
+    event: React.PointerEvent<HTMLButtonElement>
+  ) => {
+    if (!puzzle || isWin) return;
+
+    event.preventDefault();
+    gridRef.current?.setPointerCapture(event.pointerId);
+
+    isPointerDown.current = true;
+    hasDragged.current = false;
+    startCell.current = [row, col];
+    activePointerId.current = event.pointerId;
+    lastMarkedCell.current = null;
+    pointerStartPosition.current = {
+      x: event.clientX,
+      y: event.clientY,
+    };
+  };
+
+  const handleGridPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (
+      !isPointerDown.current ||
+      activePointerId.current !== event.pointerId
+    ) {
+      return;
+    }
+
+    processDragAt(event.clientX, event.clientY);
+  };
+
+  const handleGridPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (
+      !isPointerDown.current ||
+      activePointerId.current !== event.pointerId
+    ) {
+      return;
+    }
+
+    if (gridRef.current?.hasPointerCapture(event.pointerId)) {
+      gridRef.current.releasePointerCapture(event.pointerId);
+    }
+
+    finishPointerInteraction();
   };
 
   const handleClosePopup = () => {
@@ -414,10 +498,15 @@ const QueensGame: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-lg p-2 sm:p-6 w-fit mx-auto select-none">
           <div
+            ref={gridRef}
             className="inline-grid gap-0 touch-none"
             style={{
               gridTemplateColumns: `repeat(${puzzle.size}, minmax(0, 1fr))`,
+              touchAction: "none",
             }}
+            onPointerMove={handleGridPointerMove}
+            onPointerUp={handleGridPointerUp}
+            onPointerCancel={handleGridPointerUp}
           >
             {board.map((row, rowIndex) =>
               row.map((cell, colIndex) => {
@@ -428,12 +517,12 @@ const QueensGame: React.FC = () => {
                 return (
                   <button
                     key={`${rowIndex}-${colIndex}`}
-                    onPointerDown={(event) => {
-                      event.preventDefault();
-                      handlePointerDown(rowIndex, colIndex);
-                    }}
-                    onPointerEnter={() => handlePointerEnter(rowIndex, colIndex)}
-                    onPointerUp={() => handlePointerUp(rowIndex, colIndex)}
+                    type="button"
+                    data-cell-row={rowIndex}
+                    data-cell-col={colIndex}
+                    onPointerDown={(event) =>
+                      handlePointerDown(rowIndex, colIndex, event)
+                    }
                     className={`
                       ${cellSizeClass}
                       font-bold transition-all duration-150
@@ -454,7 +543,7 @@ const QueensGame: React.FC = () => {
                     {cell === "x" ? (
                       <span className="text-gray-800/80 leading-none">×</span>
                     ) : cell === "queen" ? (
-                      <span className="text-xl sm:text-2xl leading-none">♛</span>
+                      <QueenIcon className="w-[1.15em] h-[1.15em] text-gray-900" />
                     ) : null}
                     {isError && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-red-200/70">
